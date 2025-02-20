@@ -6,6 +6,10 @@ import vueDevTools from 'vite-plugin-vue-devtools'
 
 // https://vite.dev/config/
 export default defineConfig({
+  assetsDir: 'assets', // default
+  build: {
+    outDir: 'dist' // 输出目录
+  },
   plugins: [
     vue(),
     vueDevTools(),
