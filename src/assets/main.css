@@ -31,7 +31,7 @@ body, html {
     /* 动态计算宽度和高度 */
     width: min(100vw, 100vh * 1.5); /* 宽度不超过 100vh * 1.5 */
     height: min(100vw / 1.5, 100vh); /* 高度不超过 100vh */
-    background-image: url("src/assets/images/纯背景.jpg"); /* 背景图片路径 */
+    background-image: url("src/assets/images/bg.jpg"); /* 背景图片路径 */
     background-size: cover; /* 图片拉伸以覆盖整个容器 */
     background-position: center; /* 图片居中显示 */
 }
@@ -122,19 +122,19 @@ td.special-name div div.name {
 }
 
 .queenie::after {
-    background-image: url('src/assets/images/沐.png');
+    background-image: url('src/assets/images/queenie.png');
 }
 
 .yoyi::after {
-    background-image: url('src/assets/images/又.png');
+    background-image: url('src/assets/images/yoyi.png');
 }
 
 .lian::after {
-    background-image: url('src/assets/images/梨.png');
+    background-image: url('src/assets/images/lian.png');
 }
 
 .bekki::after {
-    background-image: url('src/assets/images/恬.png');
+    background-image: url('src/assets/images/bekki.png');
 }
 
 .with-image.rest::after {
@@ -148,7 +148,7 @@ td.special-name div div.name {
     height: 100px;
     background-size: contain;
     background-repeat: no-repeat;
-    background-image: url("src/assets/images/休.png");
+    background-image: url("src/assets/images/rest.png");
 }
 
 .name,
