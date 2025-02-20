@@ -143,3 +143,19 @@ td.special-name div div.name {
 .day {
     user-select: none;
 }
+
+.name {
+    height: 39px;
+}
+
+/*.time {*/
+/*    height: 39px;*/
+/*}*/
+
+.hourAndMinute {
+    height: 39px;
+}
+
+.el-dialog {
+  width: 400px !important;
+}

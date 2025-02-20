@@ -2,18 +2,20 @@
 import {ref, computed, onMounted} from 'vue'
 
 const SpecialNames = ['沐霂'];
-const NamesList = ['lian', 'queenie', 'bekki', 'yoyi', ''];
+const NamesList = ['lian', 'queenie', 'bekki', 'yoyi', 'nobody'];
 const NamesTable = {
   '梨安': 'lian',
   '沐霂': 'queenie',
   '恬豆': 'bekki',
-  '又一': 'yoyi'
+  '又一': 'yoyi',
+  '': 'nobody'
 }
 const NamesTableReverse = {
   'lian': '梨安',
   'queenie': '沐霂',
   'bekki': '恬豆',
-  'yoyi': '又一'
+  'yoyi': '又一',
+  'nobody': ''
 }
 
 const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -72,12 +74,12 @@ const weekList = computed(() => {
   return days;
 });
 
-
+// 日期范围2025.2.17 - 2025.2.23
 const dateRange = computed(() => {
   const startYear = startOfWeek.value.getFullYear();
   const startMonth = startOfWeek.value.getMonth() + 1;
   const startDate = startOfWeek.value.getDate();
-  // debugger
+
   const endYear = endOfWeek.value.getFullYear();
   const endMonth = endOfWeek.value.getMonth() + 1;
   const endDate = endOfWeek.value.getDate();
@@ -85,20 +87,24 @@ const dateRange = computed(() => {
 });
 
 // 生成随机数据的函数
-const generateRandomData = () => {
+const generateRandomData = (type) => {
   return daysOfWeek.map(() => {
-    const keys = Object.keys(NamesTable);
-    const randomIndex = Math.floor(Math.random() * keys.length);
-    const name = keys[randomIndex];
-    return {
-      class: getClassByVtuberName(name),
-      name: name,
-      visible: true
-    };
+    let name;
+    do {
+      // 防止结果为空
+      const keys = Object.keys(NamesTable);
+      const randomIndex = Math.floor(Math.random() * keys.length);
+      name = keys[randomIndex];
+    } while (name === '')
+
+    let data = getDefaultData(type);
+    data['name'] = name;
+    data['class'] = getClassByVtuberName(name);
+    return data;
   });
 };
 
-// 特殊名字的处理
+// 处理特殊名字：沐霂
 function getClassByVtuberName(VtuberName) {
   // debugger;
   if (SpecialNames.includes(VtuberName)) {
@@ -110,20 +116,30 @@ function getClassByVtuberName(VtuberName) {
 const randomData1 = ref([]);
 const randomData2 = ref([]);
 const drawer = ref(false)
+const currentType = ref(1)
 
-
+// 更换虚拟主播
 function changeVtuber(index, group, direction = 1) {
   console.log('changeVtuber', index, group);
-  // debugger;
 
   const data = (group === 1) ? randomData1 : randomData2;
   const name = data.value[index].name;
-  // debugger
   const nextName = getNextName(NamesTable[name], direction);
 
-  data.value[index] = {
-    name: NamesTableReverse[nextName],
-    class: getClassByVtuberName(NamesTableReverse[nextName]),
+  let newData = getDefaultData(group, data.value[index]);
+  newData['name'] = NamesTableReverse[nextName];
+  newData['class'] = getClassByVtuberName(NamesTableReverse[nextName]);
+  data.value[index] = newData;
+}
+
+function getDefaultData(type, currentData = undefined) {
+  if (currentData !== undefined) {
+    return currentData
+  }
+  return {
+    startingTime: type === 1 ? '18:30' : '21:00',
+    name: null,
+    class: null,
     visible: true
   };
 }
@@ -139,9 +155,61 @@ function changeVtuberByWheelEvent(index, group, event) {
 
 // 初始化时生成数据
 onMounted(() => {
-  randomData1.value = generateRandomData();
-  randomData2.value = generateRandomData();
+  randomData1.value = generateRandomData(1);
+  randomData2.value = generateRandomData(2);
 });
+
+// 响应式状态
+const showTimePicker = ref(false)
+const selectedTime = ref(null)
+const currentIndex = ref(-1)
+
+// 时间格式配置
+const timeFormat = 'HH:mm'
+const timeType = 'time' // 可选 'date', 'time', 'datetime'
+
+// 打开时间选择器
+function openTimePicker(index, type) {
+  currentIndex.value = index
+  // 用于handleConfirm回写
+  currentType.value = type
+  showTimePicker.value = true
+
+  // 初始化选中时间
+  const initialTime = currentType.value === 1 ? randomData1.value[index]?.startingTime : randomData2.value[index]?.startingTime
+  if (initialTime) {
+    selectedTime.value = new Date(`1970-01-01 ${initialTime}`)
+  }
+}
+
+// 确认选择
+function handleConfirm() {
+  if (currentIndex.value === -1 || !selectedTime.value)
+    return
+  // 更新时间
+  const formattedTime = selectedTime.value.toLocaleTimeString('zh-CN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  })
+  console.log('selectedTime', formattedTime)
+  debugger
+  if (currentType.value === 1)
+    randomData1.value[currentIndex.value].startingTime = formattedTime
+  else{
+    randomData2.value[currentIndex.value].startingTime = formattedTime
+  }
+
+  showTimePicker.value = false
+}
+
+// 取消选择
+function handleCancel() {
+  showTimePicker.value = false
+  // 可选：重置时间
+  selectedTime.value = null
+}
+
 </script>
 
 <template>
@@ -163,13 +231,21 @@ onMounted(() => {
         <td v-for="(day, index) in daysOfWeek"
             :key="index"
             :class="['with-image', day, randomData1[index]?.class]"
-            @click="changeVtuber(index, 1)"
-            @wheel="changeVtuberByWheelEvent(index, 1, $event);"
             v-show="randomData1[index]?.visible"
         >
           <div class="item">
-            <time class="time" v-show="randomData1[index]?.name">18:30</time>
-            <div class="name">{{ randomData1[index]?.name }}</div>
+            <div class="hourAndMinute">
+              <time
+                  class="time"
+                  v-show="randomData1[index]?.name"
+                  @click="() => openTimePicker(index,1)"
+              >
+                {{ randomData1[index]?.startingTime }}
+              </time>
+            </div>
+            <div class="name" @click="changeVtuber(index, 1)" @wheel="changeVtuberByWheelEvent(index, 1, $event);">
+              {{ randomData1[index]?.name }}
+            </div>
           </div>
         </td>
       </tr>
@@ -178,13 +254,17 @@ onMounted(() => {
             v-for="(day, index) in daysOfWeek"
             :key="index"
             :class="['with-image', day, randomData2[index]?.class]"
-            @click="changeVtuber(index, 2)"
-            @wheel="changeVtuberByWheelEvent(index, 2, $event);"
             v-show="randomData2[index]?.visible"
         >
           <div class="item">
-            <time class="time" v-show="randomData2[index]?.name">21:00</time>
-            <div class="name">{{ randomData2[index]?.name }}</div>
+            <div class="hourAndMinute">
+              <time class="time" v-show="randomData2[index]?.name" @click="() => openTimePicker(index,2)">
+                {{ randomData2[index]?.startingTime }}
+              </time>
+            </div>
+            <div class="name" @click="changeVtuber(index, 2)" @wheel="changeVtuberByWheelEvent(index, 2, $event);">
+              {{ randomData2[index]?.name }}
+            </div>
           </div>
         </td>
       </tr>
@@ -206,6 +286,26 @@ onMounted(() => {
         </div>
       </div>
     </el-drawer>
+
+
+    <!-- 时间选择器弹窗 -->
+    <el-dialog
+        v-model="showTimePicker"
+        title="选择时间"
+        append-to-body
+    >
+      <el-time-picker
+          v-model="selectedTime"
+          :format="timeFormat"
+          :value-type="timeType"
+          placeholder="选择时间"
+      />
+
+      <template #footer>
+        <el-button @click="handleCancel">取消</el-button>
+        <el-button type="primary" @click="handleConfirm">确定</el-button>
+      </template>
+    </el-dialog>
 
   </div>
 </template>
