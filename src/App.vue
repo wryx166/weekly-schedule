@@ -61,7 +61,6 @@ const weekList = computed(() => {
   const start = new Date(startOfWeek.value);
   const days = [];
   for (let i = 0; i < 7; i++) {
-    // debugger;
     const month = formatWithLeadingZero(start.getMonth() + 1);
     const date = formatWithLeadingZero(start.getDate());
     const dayOfWeek = dayClassToDayOfWeek[daysOfWeek[start.getDay()]];
@@ -97,19 +96,20 @@ const generateRandomData = (type) => {
       name = keys[randomIndex];
     } while (name === '')
 
-    let data = getDefaultData(type);
+    let data = getDefaultData(type, undefined);
     data['name'] = name;
-    data['class'] = getClassByVtuberName(name);
+    data['class'] = getClassByVtuberName(name)
     return data;
   });
 };
 
 // 处理特殊名字：沐霂
 function getClassByVtuberName(VtuberName) {
-  // debugger;
+
   if (SpecialNames.includes(VtuberName)) {
     return [NamesTable[VtuberName], "special-name"];
   }
+
   return NamesTable[VtuberName];
 }
 
@@ -118,15 +118,22 @@ const randomData2 = ref([]);
 const drawer = ref(false)
 const currentType = ref(1)
 
-// 更换虚拟主播
-function changeVtuber(index, group, direction = 1) {
-  console.log('changeVtuber', index, group);
+// 合并单元格
+// 0: 不合并
+// 1: 合并(单播)
+// 2: 合并(休息)
+// 3: 合并(团播)
+const mergedType = ref([])
 
-  const data = (group === 1) ? randomData1 : randomData2;
+// 更换虚拟主播
+function changeVtuber(index, type, direction = 1) {
+  console.log('changeVtuber', index, type);
+
+  const data = (type === 1) ? randomData1 : randomData2;
   const name = data.value[index].name;
   const nextName = getNextName(NamesTable[name], direction);
 
-  let newData = getDefaultData(group, data.value[index]);
+  let newData = getDefaultData(type, data.value[index]);
   newData['name'] = NamesTableReverse[nextName];
   newData['class'] = getClassByVtuberName(NamesTableReverse[nextName]);
   data.value[index] = newData;
@@ -140,16 +147,17 @@ function getDefaultData(type, currentData = undefined) {
     startingTime: type === 1 ? '18:30' : '21:00',
     name: null,
     class: null,
-    visible: true
+    // mergedType: 0,
+    rest: false
   };
 }
 
 // 鼠标滚轮事件
-function changeVtuberByWheelEvent(index, group, event) {
+function changeVtuberByWheelEvent(index, type, event) {
   if (event.deltaY > 0) {
-    changeVtuber(index, group, 1);
+    changeVtuber(index, type, 1);
   } else {
-    changeVtuber(index, group, -1);
+    changeVtuber(index, type, -1);
   }
 }
 
@@ -157,6 +165,7 @@ function changeVtuberByWheelEvent(index, group, event) {
 onMounted(() => {
   randomData1.value = generateRandomData(1);
   randomData2.value = generateRandomData(2);
+  mergedType.value = new Array(7).fill(0)
 });
 
 // 响应式状态
@@ -193,10 +202,10 @@ function handleConfirm() {
     hour12: false
   })
   console.log('selectedTime', formattedTime)
-  debugger
+
   if (currentType.value === 1)
     randomData1.value[currentIndex.value].startingTime = formattedTime
-  else{
+  else {
     randomData2.value[currentIndex.value].startingTime = formattedTime
   }
 
@@ -210,6 +219,44 @@ function handleCancel() {
   selectedTime.value = null
 }
 
+function rotateMerge(index) {
+  function updateClass(dataArray, index, action) {
+
+    if (typeof dataArray[index].class === 'string') {
+      dataArray[index].class = [dataArray[index].class];
+    }
+    if (action === 'add') {
+      dataArray[index].class.push('rest');
+    } else {
+      dataArray[index].class = dataArray[index].class.filter(item => item !== 'rest');
+    }
+  }
+
+  mergedType.value[index] = (mergedType.value[index] + 1) % 4;
+
+  // 合并单元格
+  // 0: 不合并
+  // 1: 合并(单播)
+  // 2: 合并(休息)
+  console.log('mergedType', mergedType);
+  // 2.休息
+  if (mergedType.value[index] === 2) {
+    updateClass(randomData1.value, index, 'add');
+    updateClass(randomData2.value, index, 'add');
+    randomData1.value[index].rest = true;
+    randomData2.value[index].rest = true;
+  } else {
+    updateClass(randomData1.value, index, 'remove');
+    updateClass(randomData2.value, index, 'remove');
+    randomData1.value[index].rest = false;
+    randomData2.value[index].rest = false;
+  }
+  // 3.团播
+  if (mergedType.value[index] === 3){
+
+  }
+}
+
 </script>
 
 <template>
@@ -220,7 +267,7 @@ function handleCancel() {
     <table class="schedule">
       <thead class="schedule">
       <tr>
-        <th v-for="(day, index) in weekList" :key="index" class="schedule">
+        <th v-for="(day, index) in weekList" :key="index" class="schedule" @click="rotateMerge(index)">
           <div class="day-of-week">{{ day.dayOfWeek }}</div>
           <time class="day">{{ day.date }}</time>
         </th>
@@ -231,7 +278,7 @@ function handleCancel() {
         <td v-for="(day, index) in daysOfWeek"
             :key="index"
             :class="['with-image', day, randomData1[index]?.class]"
-            v-show="randomData1[index]?.visible"
+            :rowspan="mergedType[index] !== 0 ? 2 : 1"
         >
           <div class="item">
             <div class="hourAndMinute">
@@ -244,9 +291,10 @@ function handleCancel() {
               </time>
             </div>
             <div class="name" @click="changeVtuber(index, 1)" @wheel="changeVtuberByWheelEvent(index, 1, $event);">
-              {{ randomData1[index]?.name }}
+              {{ mergedType[index] !== 3 ? randomData1[index]?.name : '团播' }}
             </div>
           </div>
+          <div class="rest"/>
         </td>
       </tr>
       <tr>
@@ -254,7 +302,7 @@ function handleCancel() {
             v-for="(day, index) in daysOfWeek"
             :key="index"
             :class="['with-image', day, randomData2[index]?.class]"
-            v-show="randomData2[index]?.visible"
+            v-show="mergedType[index]===0"
         >
           <div class="item">
             <div class="hourAndMinute">
@@ -312,23 +360,5 @@ function handleCancel() {
 
 <style scoped>
 @import './assets/main.css';
-
-.demo-date-picker {
-  display: flex;
-  width: 100%;
-  padding: 0;
-  flex-wrap: wrap;
-}
-
-.demo-date-picker .block {
-  padding: 30px 0;
-  text-align: center;
-  border-right: solid 1px var(--el-border-color);
-  flex: 1;
-}
-
-.demo-date-picker .block:last-child {
-  border-right: none;
-}
 
 </style>
