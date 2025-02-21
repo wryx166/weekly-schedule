@@ -1,11 +1,13 @@
 ### 使用的nodejs版本是v22.14.0
 
 ### 安装pnpm
+
 ```sh
 npm install -g pnpm@latest-10
 ```
 
 ### 初始化
+
 ```sh
 pnpm install
 ```
@@ -21,5 +23,14 @@ pnpm dev
 ```sh
 pnpm build
 ```
+> **警告**
+>
+> [./src/assets/fonts/](./src/assets/fonts)下的字体文件经过裁剪，只保留了部分字符。
+> 具体名单在[./unicodes.txt](./unicodes.txt)中。
+> 如果需要其他字符，请修改[./unicodes.txt](./unicodes.txt)后使用[sub_setter.py](sub_setter.py)自行裁剪。
+
 ### 效果图
+
 ![效果图](./markdown/Snipaste_2025-02-20_20-17-18.png)
+
+

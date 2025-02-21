@@ -1,20 +1,20 @@
 @font-face {
     font-family: 'AlibabaPuHuiTi-3-115-Black';
-    src: url('/src/assets/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-3-115-Black/AlibabaPuHuiTi-3-115-Black.woff2') format('woff2');
+    src: url('/src/assets/fonts/AlibabaPuHuiTi-3-115-Black.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'AlibabaPuHuiTi-3-75-SemiBold';
-    src: url('/src/assets/fonts/AlibabaPuHuiTi-3/AlibabaPuHuiTi-3-75-SemiBold/AlibabaPuHuiTi-3-75-SemiBold.woff2') format('woff2');
+    src: url('/src/assets/fonts/AlibabaPuHuiTi-3-75-SemiBold.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'MiSans-Heavy';
-    src: url('/src/assets/fonts/MiSans/woff2/MiSans-Heavy.woff2') format('woff2');
+    src: url('/src/assets/fonts/MiSans-Heavy.woff2') format('woff2');
     font-weight: normal;
     font-style: normal;
 }

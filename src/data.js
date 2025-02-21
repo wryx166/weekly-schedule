@@ -92,3 +92,31 @@ export function updateClass(classArray, str, action) {
     }
     return classArray
 }
+
+// 生成随机数据的函数
+export function generateRandomData(type) {
+    const randomData = [];
+    for (let i = 0; i < 7; i++) {
+        const data = getDefaultData(type);
+        const name = getRandomElementFromList(vtuberList);
+        data['name'] = name;
+        data['class'] = getClassByVtuberName(name);
+        randomData.push(data);
+    }
+    return randomData
+}
+
+// 处理特殊名字：沐霂
+export function getClassByVtuberName(VtuberName) {
+    const name = getNameOfVtuber(VtuberName);
+    return isSpecialName(VtuberName) ? [name, "special-name"] : name;
+}
+
+export function getDefaultData(type) {
+    return {
+        startingTime: type === 1 ? '18:30' : '21:00',
+        name: null,
+        class: null,
+        rest: false
+    };
+}

@@ -4,12 +4,10 @@ import {
   dayClassToChinese,
   daysOfWeek, extractDateComponents,
   formatWithLeadingZero,
-  getNameOfVtuber,
   getNextVtuber,
-  getRandomElementFromList,
-  isSpecialName,
   updateClass,
-  vtuberList
+  generateRandomData,
+  getClassByVtuberName
 } from "@/data.js";
 
 
@@ -47,25 +45,6 @@ const weekList = computed(() => {
 });
 
 
-// 生成随机数据的函数
-function generateRandomData(type) {
-  const randomData = [];
-  for (let i = 0; i < 7; i++) {
-    const data = getDefaultData(type);
-    const name = getRandomElementFromList(vtuberList);
-    data['name'] = name;
-    data['class'] = getClassByVtuberName(name);
-    randomData.push(data);
-  }
-  return randomData
-}
-
-// 处理特殊名字：沐霂
-function getClassByVtuberName(VtuberName) {
-  const name = getNameOfVtuber(VtuberName);
-  return isSpecialName(VtuberName) ? [name, "special-name"] : name;
-}
-
 // 响应式状态
 const showTimePicker = ref(false)
 const selectedTime = ref(null)
@@ -92,15 +71,6 @@ function changeVtuber(index, type, direction = 1) {
 
   data.value[index].name = nextVtuber;
   data.value[index].class = getClassByVtuberName(nextVtuber);
-}
-
-function getDefaultData(type) {
-  return {
-    startingTime: type === 1 ? '18:30' : '21:00',
-    name: null,
-    class: null,
-    rest: false
-  };
 }
 
 // 鼠标滚轮事件
