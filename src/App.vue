@@ -8,7 +8,7 @@ import {
   getNextVtuber,
   getRandomElementFromList,
   isSpecialName,
-  stringToList,
+  updateClass,
   vtuberList
 } from "@/data.js";
 
@@ -16,12 +16,18 @@ import {
 /** @type {import('vue').Ref<Date>} */
 const startOfWeek = ref(new Date('2025-02-17'));
 
-// const value1 = ref('')
 /** @type {import('vue').ComputedRef<Date>} */
 const endOfWeek = computed(() => {
   const end = new Date(startOfWeek.value);
   end.setDate(startOfWeek.value.getDate() + 6);
   return end;
+});
+
+// 日期范围2025.2.17 - 2025.2.23
+const dateRange = computed(() => {
+  const {year: startYear, month: startMonth, day: startDate} = extractDateComponents(startOfWeek.value);
+  const {year: endYear, month: endMonth, day: endDate} = extractDateComponents(endOfWeek.value);
+  return `${startYear}.${startMonth}.${startDate} - ${endYear}.${endMonth}.${endDate}`;
 });
 
 const weekList = computed(() => {
@@ -40,12 +46,6 @@ const weekList = computed(() => {
   return days;
 });
 
-// 日期范围2025.2.17 - 2025.2.23
-const dateRange = computed(() => {
-  const {year: startYear, month: startMonth, day: startDate} = extractDateComponents(startOfWeek.value);
-  const {year: endYear, month: endMonth, day: endDate} = extractDateComponents(endOfWeek.value);
-  return `${startYear}.${startMonth}.${startDate} - ${endYear}.${endMonth}.${endDate}`;
-});
 
 // 生成随机数据的函数
 function generateRandomData(type) {
@@ -165,15 +165,7 @@ function handleCancel() {
 }
 
 function rotateMerge(index) {
-  function updateClass(dataArray, index, action) {
-    dataArray[index].class = stringToList(dataArray[index].class);
 
-    if (action === 'add') {
-      dataArray[index].class.push('rest');
-    } else {
-      dataArray[index].class = dataArray[index].class.filter(item => item !== 'rest');
-    }
-  }
 
   mergedType.value[index] = (mergedType.value[index] + 1) % 4;
 
@@ -184,21 +176,9 @@ function rotateMerge(index) {
   // 3: 合并(团播)
   console.log('mergedType', mergedType);
   // 2.休息
-  if (mergedType.value[index] === 2) {
-    updateClass(randomData1.value, index, 'add');
-    updateClass(randomData2.value, index, 'add');
-    randomData1.value[index].rest = true;
-    randomData2.value[index].rest = true;
-  } else {
-    updateClass(randomData1.value, index, 'remove');
-    updateClass(randomData2.value, index, 'remove');
-    randomData1.value[index].rest = false;
-    randomData2.value[index].rest = false;
-  }
-  // // 3.团播
-  // if (mergedType.value[index] === 3) {
-  //
-  // }
+  let action = mergedType.value[index] === 2 ? 'add' : 'remove';
+  randomData1.value[index].class = updateClass(randomData1.value[index].class, "rest", action)
+  randomData2.value[index].class = updateClass(randomData2.value[index].class, "rest", action)
 }
 
 </script>
@@ -221,22 +201,20 @@ function rotateMerge(index) {
       <tr>
         <td v-for="(day, index) in daysOfWeek"
             :key="index"
-            :class="['with-image', day, randomData1[index]?.class]"
+            :class="['with-image', day, randomData1[index]?.class,{ 'group-broadcasting': mergedType[index] === 3 }]"
             :rowspan="mergedType[index] !== 0 ? 2 : 1"
         >
           <div class="item">
             <div class="hourAndMinute">
               <time
                   class="time"
-                  v-show="randomData1[index]?.name"
+                  v-show="randomData1[index]?.name || mergedType[index] === 3"
                   @click="() => openTimePicker(index,1)"
               >
                 {{ randomData1[index]?.startingTime }}
               </time>
             </div>
-            <div class="name" @click="changeVtuber(index, 1)" @wheel="changeVtuberByWheel(index, 1, $event);">
-              {{ mergedType[index] !== 3 ? randomData1[index]?.name : '团播' }}
-            </div>
+            <div class="name" @click="changeVtuber(index, 1)" @wheel="changeVtuberByWheel(index, 1, $event);"/>
           </div>
           <div class="rest"/>
         </td>
@@ -254,9 +232,7 @@ function rotateMerge(index) {
                 {{ randomData2[index]?.startingTime }}
               </time>
             </div>
-            <div class="name" @click="changeVtuber(index, 2)" @wheel="changeVtuberByWheel(index, 2, $event);">
-              {{ randomData2[index]?.name }}
-            </div>
+            <div class="name" @click="changeVtuber(index, 2)" @wheel="changeVtuberByWheel(index, 2, $event);"/>
           </div>
         </td>
       </tr>

@@ -75,9 +75,20 @@ export const formatWithLeadingZero = (number) => {
 };
 
 export function extractDateComponents(date) {
-  return {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate()
-  };
+    return {
+        year: date.getFullYear(),
+        month: date.getMonth() + 1,
+        day: date.getDate()
+    };
+}
+
+export function updateClass(classArray, str, action) {
+    classArray = stringToList(classArray);
+
+    if (action === 'add') {
+        classArray.push(str);
+    } else {
+        classArray = classArray.filter(item => item !== str);
+    }
+    return classArray
 }

@@ -97,12 +97,17 @@ tbody.schedule {
 .name {
     color: rgb(29, 93, 77);
     font-size: 28px;
+    height: 39px;
     /*font-weight: bold;*/
     font-family: AlibabaPuHuiTi-3-115-Black, sans-serif;
 }
 
-td.special-name div div.name {
+td.special-name div.item div.name {
     font-family: MiSans-Heavy, sans-serif;
+}
+
+.group-broadcasting div.item div.name {
+    font-family: AlibabaPuHuiTi-3-115-Black, sans-serif !important;
 }
 
 .with-image {
@@ -143,7 +148,7 @@ td.special-name div div.name {
     position: absolute;
     left: 50%;
     top: 50%;
-    transform: translate(-50%,-50%);
+    transform: translate(-50%, -50%);
     width: 100px;
     height: 100px;
     background-size: contain;
@@ -158,9 +163,6 @@ td.special-name div div.name {
     user-select: none;
 }
 
-.name {
-    height: 39px;
-}
 
 /*.time {*/
 /*    height: 39px;*/
@@ -204,3 +206,22 @@ td.rest div.rest {
     visibility: visible;
 }
 
+.yoyi div.item div.name::before {
+    content: "又一";
+}
+
+.queenie div.item div.name::before {
+    content: "沐霂";
+}
+
+.lian div.item div.name::before {
+    content: "梨安";
+}
+
+.bekki div.item div.name::before {
+    content: "恬豆";
+}
+
+.group-broadcasting div.item div.name::before {
+    content: "团播" !important;
+}
