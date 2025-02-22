@@ -25,9 +25,8 @@ pnpm build
 ```
 > **警告**
 >
-> [./src/assets/fonts/](./src/assets/fonts)下的字体文件经过裁剪，只保留了部分字符。
-> 具体名单在[./unicodes.txt](./unicodes.txt)中。
-> 如果需要其他字符，请修改[./unicodes.txt](./unicodes.txt)后使用[sub_setter.py](sub_setter.py)自行裁剪。
+> [./src/assets/fonts/](./src/assets/fonts)下的字体文件默认未经过裁剪，包含全部字符。
+> 如果需要裁剪字符，请修改[./unicodes.txt](./unicodes.txt)后使用[sub_setter.py](sub_setter.py)自行裁剪。
 
 ### 效果图
 

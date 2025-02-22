@@ -7,12 +7,12 @@ import {
   getNextVtuber,
   updateClass,
   generateRandomData,
-  getClassByVtuberName
+  getClassByVtuberName, fontOptions
 } from "@/data.js";
 
 
 /** @type {import('vue').Ref<Date>} */
-const startOfWeek = ref(new Date('2025-02-17'));
+const startOfWeek = ref(new Date());
 
 /** @type {import('vue').ComputedRef<Date>} */
 const endOfWeek = computed(() => {
@@ -54,6 +54,13 @@ const randomData2 = ref([]);
 const drawer = ref(false)
 const currentType = ref(1)
 
+// 自定义对话框
+const showCustomizeDialog = ref(false)
+const customizeInput = ref('')
+
+const currentFontSize = ref('')
+
+
 // 合并单元格
 // 0: 不合并
 // 1: 合并(单播)
@@ -63,14 +70,20 @@ const mergedType = ref([])
 
 // 更换虚拟主播
 function changeVtuber(index, type, direction = 1) {
-
+  debugger;
   const data = (type === 1) ? randomData1 : randomData2;
   // 中文名
   const name = data.value[index].name;
+  // 中文名
   const nextVtuber = getNextVtuber(name, direction);
+  // 获取虚拟主播对应的class，
+  // ！！！注意：这里的方法包含特殊名字处理
+  const prevClass = getClassByVtuberName(name);
+  const nextClass = getClassByVtuberName(nextVtuber);
 
   data.value[index].name = nextVtuber;
-  data.value[index].class = getClassByVtuberName(nextVtuber);
+  data.value[index].class = updateClass(data.value[index].class, prevClass, 'remove');
+  data.value[index].class = updateClass(data.value[index].class, nextClass, 'add');
 }
 
 // 鼠标滚轮事件
@@ -134,6 +147,50 @@ function handleCancel() {
   selectedTime.value = null
 }
 
+function openCustomizeDialog(index, type) {
+  // 数据传递
+  currentIndex.value = index
+  currentType.value = type
+  const data = (type === 1) ? randomData1 : randomData2;
+  currentFontSize.value = data.value[index].fontSize
+  customizeInput.value = data.value[index].customize
+  // 打开对话框
+  showCustomizeDialog.value = true
+}
+
+function customizeDialogHandleCancel() {
+  showCustomizeDialog.value = false
+  // 清空输入框
+  customizeInput.value = ''
+}
+
+
+function customizeDialogHandleConfirm() {
+  console.log('customizeDialogHandleConfirm')
+  const input = customizeInput.value
+  const index = currentIndex.value
+  const fontSize = currentFontSize.value
+  const data = (currentType.value === 1) ? randomData1 : randomData2;
+  const prevFontSize = data.value[index].fontSize
+
+  // 对应输入框的数据
+  const action = input === '' ? 'remove' : 'add'
+  data.value[index].customize = input
+  data.value[index].class = updateClass(data.value[index].class, "customize", action)
+
+
+  // 对应字体选项的数据
+  debugger;
+  data.value[index].class = updateClass(data.value[index].class, prevFontSize, 'remove')
+  data.value[index].class = updateClass(data.value[index].class, fontSize, 'add')
+  data.value[index].fontSize = fontSize
+  // 重置
+  showCustomizeDialog.value = false
+  customizeInput.value = ''
+  currentIndex.value = null
+  currentFontSize.value = ''
+}
+
 function rotateMerge(index) {
 
 
@@ -184,7 +241,13 @@ function rotateMerge(index) {
                 {{ randomData1[index]?.startingTime }}
               </time>
             </div>
-            <div class="name" @click="changeVtuber(index, 1)" @wheel="changeVtuberByWheel(index, 1, $event);"/>
+            <div class="name"
+                 @click="changeVtuber(index, 1)"
+                 @wheel="changeVtuberByWheel(index, 1, $event);"
+                 @contextmenu.prevent="openCustomizeDialog(index, 1)"
+            >
+              {{ randomData1[index]?.customize === null ? "" : randomData1[index]?.customize }}
+            </div>
           </div>
           <div class="rest"/>
         </td>
@@ -202,7 +265,12 @@ function rotateMerge(index) {
                 {{ randomData2[index]?.startingTime }}
               </time>
             </div>
-            <div class="name" @click="changeVtuber(index, 2)" @wheel="changeVtuberByWheel(index, 2, $event);"/>
+            <div class="name" @click="changeVtuber(index, 2)"
+                 @wheel="changeVtuberByWheel(index, 2, $event); "
+                 @contextmenu.prevent="openCustomizeDialog(index, 2)"
+            >
+              {{ randomData2[index]?.customize === null ? "" : randomData2[index]?.customize }}
+            </div>
           </div>
         </td>
       </tr>
@@ -244,6 +312,32 @@ function rotateMerge(index) {
         <el-button type="primary" @click="handleConfirm">确定</el-button>
       </template>
     </el-dialog>
+
+    <!-- 自定义排班表弹窗 -->
+    <el-dialog
+        v-model="showCustomizeDialog"
+        title="自定义排班表弹窗"
+        append-to-body
+    >
+      <el-alert title="如果需要还原请删除下方输入框的全部内容" type="info" show-icon/>
+      <br>
+      <el-input v-model="customizeInput" style="width: 240px" placeholder="自定义内容"/>
+      <br>
+      <br>
+      <el-select v-model="currentFontSize" placeholder="字体大小（默认28px）" style="width: 240px">
+        <el-option
+            v-for="item in fontOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+        />
+      </el-select>
+      <template #footer>
+        <el-button @click="customizeDialogHandleCancel">取消</el-button>
+        <el-button type="primary" @click="customizeDialogHandleConfirm">确定</el-button>
+      </template>
+    </el-dialog>
+
 
   </div>
 </template>

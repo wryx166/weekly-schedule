@@ -41,6 +41,41 @@ export const dayClassToChinese = {
     'saturday': '周六'
 };
 
+export const fontOptions = [
+    {
+        value: 'font-28px',
+        label: '28px (默认)',
+    },
+    {
+        value: 'font-26px',
+        label: '26px',
+    },
+    {
+        value: 'font-24px',
+        label: '24px',
+    },
+    {
+        value: 'font-22px',
+        label: '22px',
+    },
+    {
+        value: 'font-20px',
+        label: '20px',
+    },
+    {
+        value: 'font-18px',
+        label: '18px',
+    },
+    {
+        value: 'font-16px',
+        label: '16px',
+    },
+    {
+        value: 'font-14px',
+        label: '14px',
+    },
+]
+
 export function getNextVtuber(name, direction = 1) {
     name = nameTable[name];
     name = name === undefined ? '' : name;
@@ -66,6 +101,8 @@ export function stringToList(data) {
         return [data];
     } else if (Array.isArray(data)) {
         return data;
+    } else if (data === null) {
+        return [];
     }
     throw new Error('Data is not a string or an array');
 }
@@ -82,15 +119,20 @@ export function extractDateComponents(date) {
     };
 }
 
-export function updateClass(classArray, str, action) {
+export function updateClass(classArray, strOrList, action) {
     classArray = stringToList(classArray);
-
+    strOrList = stringToList(strOrList);
+    let newClassArray = [];
     if (action === 'add') {
-        classArray.push(str);
+        newClassArray = [...classArray, ...stringToList(strOrList)];
     } else {
-        classArray = classArray.filter(item => item !== str);
+        for (let item of classArray) {
+            if (!strOrList.includes(item)) {
+                newClassArray.push(item);
+            }
+        }
     }
-    return classArray
+    return newClassArray
 }
 
 // 生成随机数据的函数
@@ -112,11 +154,14 @@ export function getClassByVtuberName(VtuberName) {
     return isSpecialName(VtuberName) ? [name, "special-name"] : name;
 }
 
+// 默认数据
 export function getDefaultData(type) {
     return {
         startingTime: type === 1 ? '18:30' : '21:00',
         name: null,
         class: null,
-        rest: false
+        rest: false,
+        customize: null,
+        fontSize: null,
     };
 }
