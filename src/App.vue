@@ -70,7 +70,7 @@ const mergedType = ref([])
 
 // 更换虚拟主播
 function changeVtuber(index, type, direction = 1) {
-  debugger;
+
   const data = (type === 1) ? randomData1 : randomData2;
   // 中文名
   const name = data.value[index].name;
@@ -180,7 +180,6 @@ function customizeDialogHandleConfirm() {
 
 
   // 对应字体选项的数据
-  debugger;
   data.value[index].class = updateClass(data.value[index].class, prevFontSize, 'remove')
   data.value[index].class = updateClass(data.value[index].class, fontSize, 'add')
   data.value[index].fontSize = fontSize
