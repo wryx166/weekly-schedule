@@ -153,7 +153,7 @@ function openCustomizeDialog(index, type) {
   currentType.value = type
   const data = (type === 1) ? randomData1 : randomData2;
   currentFontSize.value = data.value[index].fontSize
-  customizeInput.value = data.value[index].customize
+  customizeInput.value = data.value[index].customize?.replace(/<br>/g, '\n')
   // 打开对话框
   showCustomizeDialog.value = true
 }
@@ -167,11 +167,12 @@ function customizeDialogHandleCancel() {
 
 function customizeDialogHandleConfirm() {
   console.log('customizeDialogHandleConfirm')
-  const input = customizeInput.value
+  const input = customizeInput.value.replace(/\n/g, '<br>');
   const index = currentIndex.value
-  const fontSize = currentFontSize.value
+
   const data = (currentType.value === 1) ? randomData1 : randomData2;
   const prevFontSize = data.value[index].fontSize
+  const fontSize = currentFontSize.value;
 
   // 对应输入框的数据
   const action = input === '' ? 'remove' : 'add'
@@ -244,9 +245,9 @@ function rotateMerge(index) {
                  @click="changeVtuber(index, 1)"
                  @wheel="changeVtuberByWheel(index, 1, $event);"
                  @contextmenu.prevent="openCustomizeDialog(index, 1)"
-            >
-              {{ randomData1[index]?.customize === null ? "" : randomData1[index]?.customize }}
-            </div>
+                 :class="[randomData1[index]?.fontSize]"
+                 v-html="randomData1[index]?.customize === null ? '' : randomData1[index]?.customize"
+            />
           </div>
           <div class="rest"/>
         </td>
@@ -267,9 +268,9 @@ function rotateMerge(index) {
             <div class="name" @click="changeVtuber(index, 2)"
                  @wheel="changeVtuberByWheel(index, 2, $event); "
                  @contextmenu.prevent="openCustomizeDialog(index, 2)"
-            >
-              {{ randomData2[index]?.customize === null ? "" : randomData2[index]?.customize }}
-            </div>
+                 :class="[randomData2[index]?.fontSize]"
+                 v-html="randomData2[index]?.customize === null ? '' : randomData2[index]?.customize"
+            />
           </div>
         </td>
       </tr>
@@ -320,7 +321,8 @@ function rotateMerge(index) {
     >
       <el-alert title="如果需要还原请删除下方输入框的全部内容" type="info" show-icon/>
       <br>
-      <el-input v-model="customizeInput" style="width: 240px" placeholder="自定义内容"/>
+      <el-input v-model="customizeInput" :autosize="{ minRows: 2}" type="textarea" style="width: 240px"
+                placeholder="自定义内容"/>
       <br>
       <br>
       <el-select v-model="currentFontSize" placeholder="字体大小（默认28px）" style="width: 240px">
@@ -342,6 +344,7 @@ function rotateMerge(index) {
 </template>
 
 <style scoped>
+@import "tailwindcss";
 @import './assets/main.css';
 
 </style>

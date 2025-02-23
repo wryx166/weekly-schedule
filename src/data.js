@@ -43,35 +43,35 @@ export const dayClassToChinese = {
 
 export const fontOptions = [
     {
-        value: 'font-28px',
+        value: 'text-[28px]',
         label: '28px (默认)',
     },
     {
-        value: 'font-26px',
+        value: 'text-[26px]',
         label: '26px',
     },
     {
-        value: 'font-24px',
+        value: 'text-[24px]',
         label: '24px',
     },
     {
-        value: 'font-22px',
+        value: 'text-[22px]',
         label: '22px',
     },
     {
-        value: 'font-20px',
+        value: 'text-[20px]',
         label: '20px',
     },
     {
-        value: 'font-18px',
+        value: 'text-[18px]',
         label: '18px',
     },
     {
-        value: 'font-16px',
+        value: 'text-[16px]',
         label: '16px',
     },
     {
-        value: 'font-14px',
+        value: 'text-[14px]',
         label: '14px',
     },
 ]
@@ -154,6 +154,8 @@ export function getClassByVtuberName(VtuberName) {
     return isSpecialName(VtuberName) ? [name, "special-name"] : name;
 }
 
+const defaultFontSize = 'text-[28px]';
+
 // 默认数据
 export function getDefaultData(type) {
     return {
@@ -162,6 +164,6 @@ export function getDefaultData(type) {
         class: null,
         rest: false,
         customize: null,
-        fontSize: null,
+        fontSize: defaultFontSize,
     };
 }
