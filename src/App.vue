@@ -167,11 +167,10 @@ function customizeDialogHandleCancel() {
 
 function customizeDialogHandleConfirm() {
   console.log('customizeDialogHandleConfirm')
-  const input = customizeInput.value.replace(/\n/g, '<br>');
+  const input = (customizeInput.value ?? '').replace(/\n/g, '<br>');
   const index = currentIndex.value
 
   const data = (currentType.value === 1) ? randomData1 : randomData2;
-  const prevFontSize = data.value[index].fontSize
   const fontSize = currentFontSize.value;
 
   // 对应输入框的数据
@@ -180,9 +179,6 @@ function customizeDialogHandleConfirm() {
   data.value[index].class = updateClass(data.value[index].class, "customize", action)
 
 
-  // 对应字体选项的数据
-  data.value[index].class = updateClass(data.value[index].class, prevFontSize, 'remove')
-  data.value[index].class = updateClass(data.value[index].class, fontSize, 'add')
   data.value[index].fontSize = fontSize
   // 重置
   showCustomizeDialog.value = false

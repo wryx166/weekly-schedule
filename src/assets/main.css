@@ -96,9 +96,15 @@ tbody.schedule {
 
 .name {
     color: rgb(29, 93, 77);
-    height: 39px;
+    /*height: 39px;*/
     /*font-weight: bold;*/
     font-family: AlibabaPuHuiTi-3-115-Black, sans-serif;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
 }
 
 td.special-name .item .name {
@@ -164,6 +170,11 @@ td.special-name .item .name {
 .day-of-week,
 .day {
     user-select: none;
+    display: flex;
+    justify-content: center;
+    /*line-height: 1;*/
+    height: 1em;
+    align-items: center;
 }
 
 
@@ -171,9 +182,9 @@ td.special-name .item .name {
 /*    height: 39px;*/
 /*}*/
 
-.hourAndMinute {
-    height: 39px;
-}
+/*.hourAndMinute {*/
+/*    height: 39px;*/
+/*}*/
 
 .el-dialog {
     width: 400px !important;
@@ -224,9 +235,15 @@ td.rest div.rest {
 .bekki div.item .name::before {
     content: "恬豆";
 }
+
+.nobody div.item .name::before {
+    content: " ";
+}
+
 .customize div.item .name::before {
     content: "";
 }
+
 .group-broadcasting div.item .name::before {
     content: "团播" !important;
 }
