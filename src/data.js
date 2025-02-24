@@ -1,3 +1,5 @@
+import {computed, ref} from 'vue'
+
 // src/data.js
 export const nameTableReverse = {
     'lian': '梨安',
@@ -40,6 +42,21 @@ export const dayClassToChinese = {
     'friday': '周五',
     'saturday': '周六'
 };
+
+/** @type {import('vue').Ref<Date>} */
+export const startOfWeek = ref(new Date());
+
+/** @type {import('vue').ComputedRef<Date>} */
+const endOfWeek = computed(() => {
+  const end = new Date(startOfWeek.value);
+  end.setDate(startOfWeek.value.getDate() + 6);
+  return end;
+});
+
+// 日期范围2025.2.17 - 2025.2.23
+export const dateRange = computed(() => {
+  return `${extractDateComponents(startOfWeek.value)} - ${extractDateComponents(endOfWeek.value)}`;
+});
 
 export const fontOptions = [
     {
@@ -112,11 +129,10 @@ export const formatWithLeadingZero = (number) => {
 };
 
 export function extractDateComponents(date) {
-    return {
-        year: date.getFullYear(),
-        month: date.getMonth() + 1,
-        day: date.getDate()
-    };
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return `${year}.${month}.${day}`;
 }
 
 export function updateClass(classArray, strOrList, action) {

@@ -2,31 +2,13 @@
 import {computed, onMounted, ref} from 'vue'
 import {
   dayClassToChinese,
-  daysOfWeek, extractDateComponents,
-  formatWithLeadingZero,
+  daysOfWeek, formatWithLeadingZero,
   getNextVtuber,
   updateClass,
   generateRandomData,
-  getClassByVtuberName, fontOptions
+  getClassByVtuberName, fontOptions, startOfWeek, dateRange
 } from "@/data.js";
 
-
-/** @type {import('vue').Ref<Date>} */
-const startOfWeek = ref(new Date());
-
-/** @type {import('vue').ComputedRef<Date>} */
-const endOfWeek = computed(() => {
-  const end = new Date(startOfWeek.value);
-  end.setDate(startOfWeek.value.getDate() + 6);
-  return end;
-});
-
-// 日期范围2025.2.17 - 2025.2.23
-const dateRange = computed(() => {
-  const {year: startYear, month: startMonth, day: startDate} = extractDateComponents(startOfWeek.value);
-  const {year: endYear, month: endMonth, day: endDate} = extractDateComponents(endOfWeek.value);
-  return `${startYear}.${startMonth}.${startDate} - ${endYear}.${endMonth}.${endDate}`;
-});
 
 const weekList = computed(() => {
   const start = new Date(startOfWeek.value);
@@ -212,15 +194,15 @@ function rotateMerge(index) {
       {{ dateRange }}
     </time>
     <table class="schedule">
-      <thead class="schedule">
+      <thead>
       <tr>
-        <th v-for="(day, index) in weekList" :key="index" class="schedule" @click="rotateMerge(index)">
+        <th v-for="(day, index) in weekList" :key="index" @click="rotateMerge(index)">
           <div class="day-of-week">{{ day.dayOfWeek }}</div>
           <time class="day">{{ day.date }}</time>
         </th>
       </tr>
       </thead>
-      <tbody class="schedule">
+      <tbody>
       <tr>
         <td v-for="(day, index) in daysOfWeek"
             :key="index"

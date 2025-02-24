@@ -63,15 +63,15 @@ table.schedule {
     table-layout: fixed;
 }
 
-thead.schedule {
+table.schedule thead {
     height: 26.67%;
 }
 
-th.schedule {
+table.schedule thead tr th {
     width: calc(100% / 7); /* Assuming there are 7 columns */
 }
 
-tbody.schedule {
+table.schedule tbody {
     height: 73.33%;
 }
 
