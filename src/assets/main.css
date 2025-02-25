@@ -101,11 +101,18 @@ table.schedule tbody {
     font-family: AlibabaPuHuiTi-3-115-Black, sans-serif;
 }
 
-.item {
+.schedule thead .item {
     display: flex;
     flex-direction: column;
-    gap: 0.7rem;
+    gap: 0.6rem;
 }
+
+.schedule tbody .item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
 
 td.special-name .item .name {
     font-family: MiSans-Heavy, sans-serif;
@@ -178,13 +185,14 @@ td.special-name .item .name {
 }
 
 
-/*.time {*/
-/*    height: 39px;*/
-/*}*/
+.time {
+    height: 1em;
+}
 
-/*.hourAndMinute {*/
-/*    height: 39px;*/
-/*}*/
+.hourAndMinute {
+    height: 1em;
+    font-size: 28px;
+}
 
 .el-dialog {
     width: 400px !important;

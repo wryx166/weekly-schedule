@@ -197,8 +197,10 @@ function rotateMerge(index) {
       <thead>
       <tr>
         <th v-for="(day, index) in weekList" :key="index" @click="rotateMerge(index)">
-          <div class="day-of-week">{{ day.dayOfWeek }}</div>
-          <time class="day">{{ day.date }}</time>
+          <div class="item">
+            <div class="day-of-week">{{ day.dayOfWeek }}</div>
+            <time class="day">{{ day.date }}</time>
+          </div>
         </th>
       </tr>
       </thead>
