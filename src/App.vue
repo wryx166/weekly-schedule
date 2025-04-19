@@ -324,7 +324,5 @@ function rotateMerge(index) {
 </template>
 
 <style scoped>
-@import "tailwindcss";
-@import './assets/main.css';
 
 </style>

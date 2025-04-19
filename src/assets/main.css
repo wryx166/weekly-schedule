@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 @font-face {
     font-family: 'AlibabaPuHuiTi-3-115-Black';
     src: url('/src/assets/fonts/AlibabaPuHuiTi-3-115-Black.woff2') format('woff2');
@@ -31,7 +33,7 @@ body, html {
     /* 动态计算宽度和高度 */
     width: min(100vw, 100vh * 1.5); /* 宽度不超过 100vh * 1.5 */
     height: min(100vw / 1.5, 100vh); /* 高度不超过 100vh */
-    background-image: url("/src/assets/images/bg.jpg"); /* 背景图片路径 */
+    background-image: url("/src/assets/images/bg.webp"); /* 背景图片路径 */
     background-size: cover; /* 图片拉伸以覆盖整个容器 */
     background-position: center; /* 图片居中显示 */
 }
