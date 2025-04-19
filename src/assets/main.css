@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+@theme {
+    --color-sxwz: rgb(29, 93, 77);
+}
+
 @font-face {
     font-family: 'AlibabaPuHuiTi-3-115-Black';
     src: url('/src/assets/fonts/AlibabaPuHuiTi-3-115-Black.woff2') format('woff2');
@@ -28,8 +32,7 @@ body, html {
     overflow: hidden; /* 防止滚动条出现 */
 }
 
-#app {
-    position: relative;
+.main {
     /* 动态计算宽度和高度 */
     width: min(100vw, 100vh * 1.5); /* 宽度不超过 100vh * 1.5 */
     height: min(100vw / 1.5, 100vh); /* 高度不超过 100vh */
@@ -40,13 +43,12 @@ body, html {
 
 .date-range {
     position: absolute;
-    top: 30.56%;
+    /*top: 30.56%;*/
     width: 100%;
     color: rgb(108, 147, 120);
     text-align: center;
     font-size: 30px;
     font-family: AlibabaPuHuiTi-3-75-SemiBold, sans-serif;
-    transform: translateY(-50%); /* Center the element vertically */
 }
 
 table.schedule, table.schedule tr th, table.schedule tr td {
@@ -55,7 +57,7 @@ table.schedule, table.schedule tr th, table.schedule tr td {
 
 table.schedule {
     position: absolute;
-    top: 36.3%;
+    /*top: 36.3%;*/
     left: 50%;
     transform: translateX(-50%);
     text-align: center;
@@ -89,7 +91,7 @@ table.schedule tbody {
     font-family: AlibabaPuHuiTi-3-115-Black, sans-serif;
 }
 
-.time {
+.hourAndMinute {
     color: rgb(29, 93, 77);
     font-size: 28px;
     /*font-weight: bold;*/
@@ -100,6 +102,7 @@ table.schedule tbody {
     color: rgb(29, 93, 77);
     /*height: 39px;*/
     /*font-weight: bold;*/
+    font-size: 28px;
     font-family: AlibabaPuHuiTi-3-115-Black, sans-serif;
 }
 
@@ -115,13 +118,16 @@ table.schedule tbody {
     gap: 0.6rem;
 }
 
-
 td.special-name .item .name {
     font-family: MiSans-Heavy, sans-serif;
 }
 
 .group-broadcasting div.item .name {
     font-family: MiSans-Heavy, sans-serif !important;
+}
+
+.queenie .name {
+    font-family: 'MiSans-Heavy', sans-serif !important;
 }
 
 .customize div.item .name {
@@ -144,20 +150,24 @@ td.special-name .item .name {
     background-repeat: no-repeat;
 }
 
+.core {
+    position: relative;
+}
+
 .queenie::after {
-    background-image: url('/src/assets/images/queenie.png');
+    background-image: url("/src/assets/images/queenie.png");
 }
 
 .yoyi::after {
-    background-image: url('/src/assets/images/yoyi.png');
+    background-image: url("/src/assets/images/yoyi.png");
 }
 
 .lian::after {
-    background-image: url('/src/assets/images/lian.png');
+    background-image: url("/src/assets/images/lian.png");
 }
 
 .bekki::after {
-    background-image: url('/src/assets/images/bekki.png');
+    background-image: url("/src/assets/images/bekki.png");
 }
 
 .with-image.rest::after {
@@ -174,26 +184,8 @@ td.special-name .item .name {
     background-image: url("/src/assets/images/rest.png");
 }
 
-.name,
-.time,
-.day-of-week,
-.day {
-    user-select: none;
-    display: flex;
-    justify-content: center;
-    /*line-height: 1;*/
-    height: 1em;
-    align-items: center;
-}
-
-
 .time {
     height: 1em;
-}
-
-.hourAndMinute {
-    height: 1em;
-    font-size: 28px;
 }
 
 .el-dialog {
@@ -257,4 +249,3 @@ td.rest div.rest {
 .group-broadcasting div.item .name::before {
     content: "团播" !important;
 }
-
