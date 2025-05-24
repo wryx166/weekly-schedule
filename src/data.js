@@ -5,38 +5,50 @@ export const SessionType = {
   LATE: 'late'     // 晚场
 }
 
-// src/data.js
-export const nameTableReverse = {
-  'lian': '梨安',
-  'queenie': '沐霂',
-  'bekki': '恬豆',
-  'yoyi': '又一',
-  'nobody': ''
+const vtuberListEn = ['lian', 'queenie', 'bekki', 'yoyi', 'nobody']
+
+const vtuberList = ['梨安', '沐霂', '恬豆', '又一']
+
+const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+
+// 单独的时间段
+class Live {
+  constructor (time) {
+
+    this.startingTime = time === SessionType.EARLY ? '18:30' : '21:00'
+    this.rest = false
+    this.customize = null
+    this.fontSize = defaultFontSize
+
+    const characters = ['梨安', '沐霂', '恬豆', '又一']
+    const classes = {
+      '沐霂': ['queenie', 'special-name'],
+      '梨安': 'lian',
+      '恬豆': 'bekki',
+      '又一': 'yoyi'
+    }
+    this.name = characters[Math.floor(Math.random() * characters.length)]
+    this.class = classes[this.name]
+  }
+
+  handleVtuberClick () {
+    console.log('Clicked session:', this)
+    const nextVTuber = getNextVTuber(this.name)
+    console.log('下一个 VTuber 是:', nextVTuber)
+    if (nextVTuber) {
+      this.name = nextVTuber
+      this.class = this.getClassByVtuber(nextVTuber)
+    }
+    return nextVTuber
+  }
+
+  getClassByVtuber (name) {
+    const classes = {
+      '沐霂': ['queenie', 'special-name'], '梨安': 'lian', '恬豆': 'bekki', '又一': 'yoyi'
+    }
+    return classes[name] || null
+  }
 }
-
-export const nameTable = {
-  '梨安': 'lian',
-  '沐霂': 'queenie',
-  '恬豆': 'bekki',
-  '又一': 'yoyi',
-  '': 'nobody'
-}
-
-export const specialNameList = ['沐霂']
-
-export function getNameOfVtuber (vtuber) {
-  return nameTable[vtuber]
-}
-
-export function isSpecialName (name) {
-  return specialNameList.includes(name)
-}
-
-export const nameList = ['lian', 'queenie', 'bekki', 'yoyi', 'nobody']
-
-export const vtuberList = ['梨安', '沐霂', '恬豆', '又一']
-
-export const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 export const dayClassToChinese = {
   'sunday': '周日',
@@ -63,41 +75,23 @@ export const dateRange = computed(() => {
   return `${extractDateComponents(startOfWeek.value)} - ${extractDateComponents(endOfWeek.value)}`
 })
 
-export const fontOptions = [
-  {
-    value: 'text-[28px]',
-    label: '28px (默认)',
-  },
-  {
-    value: 'text-[26px]',
-    label: '26px',
-  },
-  {
-    value: 'text-[24px]',
-    label: '24px',
-  },
-  {
-    value: 'text-[22px]',
-    label: '22px',
-  },
-  {
-    value: 'text-[20px]',
-    label: '20px',
-  },
-  {
-    value: 'text-[18px]',
-    label: '18px',
-  },
-  {
-    value: 'text-[16px]',
-    label: '16px',
-  },
-  {
-    value: 'text-[14px]',
-    label: '14px',
-  },
-]
-
+export const fontOptions = [{
+  value: 'text-[28px]', label: '28px (默认)',
+}, {
+  value: 'text-[26px]', label: '26px',
+}, {
+  value: 'text-[24px]', label: '24px',
+}, {
+  value: 'text-[22px]', label: '22px',
+}, {
+  value: 'text-[20px]', label: '20px',
+}, {
+  value: 'text-[18px]', label: '18px',
+}, {
+  value: 'text-[16px]', label: '16px',
+}, {
+  value: 'text-[14px]', label: '14px',
+},]
 
 export function getRandomElementFromList (list) {
   return list[Math.floor(Math.random() * list.length)]
@@ -141,39 +135,55 @@ export function updateClass (classArray, strOrList, action) {
   return newClassArray
 }
 
-// 生成随机数据的函数
-export function generateRandomData () {
-  const randomData = [];
-  for (let i = 0; i < 7; i++) {
-    let tmp = [];
-      [SessionType.EARLY, SessionType.LATE].forEach((session) => {
-      const data = getDefaultData(session)
-      const name = getRandomElementFromList(vtuberList)
-      data['class'] = getClassByVtuberName(name)
-      data['name'] = name
-      tmp.push(data)
-    })
-    randomData.push(tmp)
-  }
-  return randomData
-}
-
-// 处理特殊名字：沐霂
-export function getClassByVtuberName (VtuberName) {
-  const name = getNameOfVtuber(VtuberName)
-  return isSpecialName(VtuberName) ? [name, 'special-name'] : name
-}
-
 const defaultFontSize = 'text-[28px]'
 
-// 默认数据
-export function getDefaultData (time) {
-  return {
-    startingTime: time === SessionType.EARLY ? '18:30' : '21:00',
-    name: null,
-    class: null,
-    rest: false,
-    customize: null,
-    fontSize: defaultFontSize,
+export class ScheduleDataList {
+  constructor () {
+    this.init()
+  }
+
+  init () {
+    const start = new Date(startOfWeek.value)
+    const days = []
+    for (let i = 0; i < 7; i++) {
+      const month = formatWithLeadingZero(2, start.getMonth() + 1)
+      const date = formatWithLeadingZero(2, start.getDate())
+      const dayOfWeek = dayClassToChinese[daysOfWeek[start.getDay()]]
+      days.push({
+        date: `${month}.${date}`,
+        dayOfWeek: dayOfWeek,
+        [SessionType.EARLY]: new Live('18:30'),
+        [SessionType.LATE]: new Live('21:00')
+      })
+      start.setDate(start.getDate() + 1)
+    }
+    this.data = days
+
+  }
+
+}
+
+class CircularQueue {
+  items = []
+
+  constructor (items) {
+    this.items = [...items]
+  }
+
+  getNext (value) {
+    const index = this.items.indexOf(value)
+    if (index === -1) return undefined // 值不存在于队列中
+
+    const nextIndex = (index + 1) % this.items.length
+    return this.items[nextIndex]
+  }
+
+  getAll () {
+    return this.items
   }
 }
+
+const getNextVTuber = (() => {
+  const queue = new CircularQueue(vtuberList)
+  return (vtuber) => queue.getNext(vtuber)
+})()
