@@ -1,22 +1,16 @@
 <script setup>
-import {ref} from "vue";
-import {dateRange} from "@/data.js";
 import MainTable from "@/components/MainTable.vue";
-
-// 响应式状态
-const drawer = ref(false);
+import DateDisplayTrigger from "@/components/DateDisplayTrigger.vue";
 </script>
 
 <template>
   <div class="flex items-center flex-col main">
-    <div class="h-[29%]"/>
-    <div class="h-[4.3%] flex items-center justify-center">
-      <time class="date-range ml-[1%]" @click="drawer = true">
-        {{ dateRange }}
-      </time>
-    </div>
-    <div class="h-[3.1%]"/>
-    <MainTable class="sss"/>
+    <div class="h-[29%]" />
+    <DateDisplayTrigger class="h-[4.3%] flex items-center justify-center" />
+    <div class="h-[3.1%]" />
+    <MainTable
+      class="flex w-[95.14%] h-[40.5%] divide-x-4 divide-sxwz border-4 border-sxwz"
+    />
   </div>
 </template>
 
