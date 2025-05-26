@@ -22,12 +22,12 @@ const handleOk = (e) => {
 const dateRangeText = computed(() => {
   const start = randomData["value"].dateRange;
   const end = start.add(6, "day");
-  return `${start.format("YYYY-MM-DD")} - ${end.format("YYYY-MM-DD")}`;
+  return `${start.format("YYYY.MM.DD")}-${end.format("YYYY.MM.DD")}`;
 });
 </script>
 
 <template>
-  <div :class="$attrs.class" class="w-full">
+  <div :class="$attrs.class" class="flex items-center justify-center">
     <time
       class="date-range ml-[1%] text-sxwz-light w-full text-center text-[3.5vh] font-[AlibabaPuHuiTi-3-75-SemiBold]"
       @click="showModal(dateRangeText)"

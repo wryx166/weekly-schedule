@@ -1,15 +1,19 @@
 <script setup>
-import MainTable from "@/components/MainTable.vue";
-import DateDisplayTrigger from "@/components/DateDisplayTrigger.vue";
+import MainTable from '@/components/MainTable.vue'
+import DateDisplayTrigger from '@/components/DateDisplayTrigger.vue'
 </script>
 
 <template>
-  <div class="flex items-center flex-col main">
-    <div class="h-[29%]" />
-    <DateDisplayTrigger class="h-[4.3%] flex items-center justify-center" />
-    <div class="h-[3.1%]" />
+  <div
+      class="grid grid-rows-[29%_4.3%_3.1%_40.5%] justify-items-center items-center h-[100vh] w-[150vh] bg-cover bg-center bg-[url('/src/assets/images/bg.webp')]"
+  >
+    <div class="w-full row-start-1"/>
+    <DateDisplayTrigger
+        class="row-start-2 w-full h-full"
+    />
+    <div class="w-full row-start-3"/>
     <MainTable
-      class="flex w-[95.14%] h-[40.5%] divide-x-4 divide-sxwz border-4 border-sxwz"
+        class="row-start-4 w-[95.14%] h-full"
     />
   </div>
 </template>
