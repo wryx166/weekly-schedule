@@ -142,7 +142,7 @@ watch(
           >
             <div
                 class="text-sxwz text-[3vh] font-display select-none"
-                @click="openTimePicker(live)"
+                @click="showDrawer(daySchedule)"
             >
               {{ startingTimeText(live) }}
             </div>
@@ -200,12 +200,10 @@ watch(
     <a-drawer
         v-model:open="openDrawer"
         :root-style="{ color: 'blue' }"
-        class="custom-class"
         placement="right"
         root-class-name="root-class-name"
-        size="large"
-        style="color: red"
         title="Basic Drawer"
+        width="485"
         @after-open-change="afterOpenChange"
     >
       <a-descriptions>
@@ -215,7 +213,7 @@ watch(
         <a-descriptions-item :span="3" label="类型">
           <a-radio-group v-model:value="currentDay.type" class="w-full flex">
             <a-radio-button value="normal">正常</a-radio-button>
-            <a-radio-button value="groupBroadcasting">团播</a-radio-button>
+            <a-radio-button value="groupBroadcasting">团播/单人</a-radio-button>
             <a-radio-button value="restDay">休息日</a-radio-button>
             <a-radio-button value="null">空白</a-radio-button>
           </a-radio-group>
