@@ -5,10 +5,20 @@ export const SessionType = {
   LATE: 'late', // 晚场
 }
 
-const vtuberListEn = ['lian', 'queenie', 'bekki', 'yoyi', 'nobody']
+export const DayType = {
+  NORMAL: 'normal', // 普通日
+  REST_DAY: 'restDay', // 休息日
+  GROUP_BROADCASTING: 'groupBroadcasting', // 集体直播
+}
 
-const vtuberList = ['梨安', '沐霂', '恬豆', '又一']
+export const VtuberType = {
+  queenie: '沐霂',
+  lian: '梨安',
+  bekki: '恬豆',
+  yoyi: '又一',
+}
 
+const vtuberListEn = ['lian', 'queenie', 'bekki', 'yoyi']
 const daysOfWeek = [
   'sunday',
   'monday',
@@ -19,29 +29,26 @@ const daysOfWeek = [
   'saturday',
 ]
 
+class GroupBroadcasting {
+  constructor (time, vtuberName) {
+    this.startingTime = time
+    this.vtuberName = vtuberName
+    this.customContent = '团播'
+  }
+}
+
 // 单独的时间段
 class Live {
   constructor (time) {
     this.startingTime = time
     this.rest = false
-    this.customize = null
-    this.fontSize = defaultFontSize
 
-    const characters = ['梨安', '沐霂', '恬豆', '又一']
-    // noinspection NonAsciiCharacters
-    const classes = {
-      沐霂: ['queenie', 'special-name'],
-      梨安: 'lian',
-      恬豆: 'bekki',
-      又一: 'yoyi',
-    }
-    this.name = characters[Math.floor(Math.random() * characters.length)]
-    this.class = classes[this.name]
+    this.vtuberName = vtuberListEn[Math.floor(Math.random() * vtuberListEn.length)]
   }
 
   handleVtuberClick () {
     console.log('Clicked session:', this)
-    const nextVTuber = getNextVTuber(this.name)
+    const nextVTuber = getNextVTuber(this.vtuberName)
     console.log('下一个 VTuber 是:', nextVTuber)
     this.updateVtuber(nextVTuber)
   }
@@ -59,22 +66,11 @@ class Live {
   }
 
   updateVtuber (vtuberName) {
-    this.name = vtuberName
-    this.class = this.getClassByVtuber(vtuberName) || ''
+    this.vtuberName = vtuberName
   }
 
   handleStartingTimeClick () {}
 
-  getClassByVtuber (name) {
-    // noinspection NonAsciiCharacters
-    const classes = {
-      沐霂: ['queenie', 'special-name'],
-      梨安: 'lian',
-      恬豆: 'bekki',
-      又一: 'yoyi',
-    }
-    return classes[name] || null
-  }
 }
 
 export const dayClassToChinese = {
@@ -89,36 +85,32 @@ export const dayClassToChinese = {
 
 export const fontOptions = [
   {
-    value: 'text-[28px]',
-    label: '28px (默认)',
+    value: 'text-[2vh]',
+    label: '2vh',
   },
   {
-    value: 'text-[26px]',
-    label: '26px',
+    value: 'text-[2.5px]',
+    label: '2.5vh',
   },
   {
-    value: 'text-[24px]',
-    label: '24px',
+    value: 'text-[3vh]',
+    label: '3vh (默认)',
   },
   {
-    value: 'text-[22px]',
-    label: '22px',
+    value: 'text-[3.5vh]',
+    label: '3.5vh',
   },
   {
-    value: 'text-[20px]',
-    label: '20px',
+    value: 'text-[4vh]',
+    label: '4vh',
   },
   {
-    value: 'text-[18px]',
-    label: '18px',
+    value: 'text-[4.5vh]',
+    label: '4.5vh',
   },
   {
-    value: 'text-[16px]',
-    label: '16px',
-  },
-  {
-    value: 'text-[14px]',
-    label: '14px',
+    value: 'text-[5vh]',
+    label: '5vh',
   },
 ]
 
@@ -164,17 +156,16 @@ export function updateClass (classArray, strOrList, action) {
   return newClassArray
 }
 
-const defaultFontSize = 'text-[28px]'
 
 class Day {
   constructor (day) {
     this.day = day
     this.date = day.format('MM.DD')
     this.dayOfWeek = dayClassToChinese[daysOfWeek[day.day()]]
-    this.isGroupBroadcasting = false
-    this.isRestDay = false
+    this.type = DayType.NORMAL // normal, restDay, groupBroadcasting
     this[SessionType.EARLY] = new Live(day.clone().hour(18).minute(30))
     this[SessionType.LATE] = new Live(day.clone().hour(21).minute(0))
+    this.groupBroadcasting = new GroupBroadcasting(day.clone().hour(19).minute(30), this[SessionType.EARLY].vtuberName)
   }
 }
 
@@ -193,12 +184,6 @@ export class ScheduleDataList {
       start = start.add(1, 'day')
     }
     this.data = days
-  }
-
-  updateClassName (currentDay, type, className) {
-    if (type === SessionType.EARLY) {
-      currentDay[SessionType.EARLY]
-    }
   }
 
   updateDateRange (newDateRange) {
@@ -236,6 +221,6 @@ class CircularQueue {
 }
 
 const getNextVTuber = (() => {
-  const queue = new CircularQueue(vtuberList)
+  const queue = new CircularQueue(vtuberListEn)
   return (vtuber) => queue.getNext(vtuber)
 })()

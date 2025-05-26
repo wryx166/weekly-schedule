@@ -16,6 +16,9 @@ const showModal = () => {
 
 const handleOk = (e) => {
   console.log(e);
+  if (!value1.value) {
+    return;
+  }
   randomData["value"].updateDateRange(value1.value);
   open.value = false;
 };
@@ -35,8 +38,8 @@ const dateRangeText = computed(() => {
       {{ dateRangeText }}
     </time>
   </div>
-  <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk">
-    <a-date-picker v-model:value="value1" />
+  <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk" >
+    <a-date-picker v-model:value="value1" :allowClear="false"/>
   </a-modal>
 </template>
 
