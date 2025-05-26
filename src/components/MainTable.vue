@@ -1,8 +1,9 @@
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { DayType, SessionType, VtuberType } from '@/data.js'
 import { useScheduleStore } from '@/store/scheduleStore.js'
-import dayjs from 'dayjs'
+import { DownloadOutlined } from '@ant-design/icons-vue'
+import domtoimage from 'dom-to-image'
 
 const scheduleStore = useScheduleStore()
 const randomData = ref(scheduleStore.randomData)
@@ -10,62 +11,12 @@ const openDrawer = ref(false)
 const currentDay = ref(null)
 const customFontSize = ref(3)
 
-class TimePickerDialog {
-  constructor (open = false, value = null, currentLive = null) {
-    this.open = open
-    this.value = value
-    this.currentLive = currentLive
-  }
-}
-
-const timePickerDialog = ref(new TimePickerDialog())
-const confirmTimePicker = () => {
-  timePickerDialog['value'].currentLive.startingTime = timePickerDialog['value'].value
-  timePickerDialog['value'].open = false
-  timePickerDialog['value'].value = null
-}
 onMounted(() => {
   scheduleStore.updateRandomData(randomData)
 })
 
-const openTimePicker = (live) => {
-  console.log('Starting time clicked')
-  timePickerDialog['value'].currentLive = live
-  timePickerDialog['value'].value = live.startingTime
-  timePickerDialog['value'].open = true
-}
-
-function isSameHourAndMinute (time1, time2) {
-  if (!time1 || !time2) throw new Error('Invalid time values provided')
-  return dayjs(time1).isSame(dayjs(time2), 'minute')
-}
-
 const startingTimeText = (live) => {
   return live.startingTime.format('HH:mm')
-}
-
-const okButtonProps = computed(() => {
-  if (
-      !timePickerDialog['value']?.value ||
-      !timePickerDialog['value']?.currentLive?.startingTime
-  )
-    return {
-      disabled: true,
-    }
-  return {
-    disabled: isSameHourAndMinute(
-        timePickerDialog['value'].value,
-        timePickerDialog['value'].currentLive.startingTime,
-    ),
-  }
-})
-
-const onFinish = (values) => {
-  console.log('Success:', values)
-}
-
-const onFinishFailed = (errorInfo) => {
-  console.log('Failed:', errorInfo)
 }
 
 const afterOpenChange = (bool) => {
@@ -78,36 +29,23 @@ const showDrawer = (day) => {
   console.log('open', day)
 }
 
-const dateRangePassword = computed({
-  get () {
-    return randomData.value.dateRange
-        ? dayjs(randomData.value.dateRange).format('MM:DD')
-        : ''
-  },
-  set (val) {
-    randomData.value.dateRange = val ? dayjs(val, 'MM:DD') : null
-  },
-})
-
-watch(
-    () => currentDay.value?.early?.vtuberName,
-    (newVal, oldVal) => {
-      console.log('早场VTuber变更:', oldVal, '=>', newVal)
-      // 在这里处理变更逻辑
-      console.log(currentDay)
-      currentDay.value?.early?.updateVtuber(newVal)
-    }
-)
-
-watch(
-    () => currentDay.value?.late?.vtuberName,
-    (newVal, oldVal) => {
-      console.log('早场VTuber变更:', oldVal, '=>', newVal)
-      // 在这里处理变更逻辑
-      console.log(currentDay)
-      currentDay.value?.late?.updateVtuber(newVal)
-    }
-)
+const downloadScreenshot = () => {
+  const mainDiv = document.querySelector('div.main')
+  if (!mainDiv) {
+    alert('未找到 .main 区域')
+    return
+  }
+  domtoimage.toPng(mainDiv)
+    .then(function (dataUrl) {
+      const link = document.createElement('a')
+      link.href = dataUrl
+      link.download = 'screenshot.png'
+      link.click()
+    })
+    .catch(function (error) {
+      alert('截图失败: ' + error)
+    })
+}
 </script>
 
 <template>
@@ -185,18 +123,6 @@ watch(
         </div>
       </transition>
     </div>
-    <a-modal
-        v-model:open="timePickerDialog.open"
-        :okButtonProps="okButtonProps"
-        title="Basic Modal"
-        @ok="confirmTimePicker"
-    >
-      <a-time-picker
-          v-model:value="timePickerDialog.value"
-          :allowClear="false"
-          format="HH:mm"
-      />
-    </a-modal>
     <a-drawer
         v-model:open="openDrawer"
         :root-style="{ color: 'blue' }"
@@ -265,11 +191,21 @@ watch(
           <a-textarea v-model:value="currentDay['groupBroadcasting'].customContent" :auto-size="{ minRows: 3}"
                       placeholder="请输入直播间内容"/>
         </a-descriptions-item>
+        <a-descriptions-item :span="3">
+          <a-button class="mr-3" type="primary" @click="downloadScreenshot()">
+            <template #icon>
+              <!--suppress HtmlUnknownTag -->
+              <DownloadOutlined/>
+            </template>
+            下载周表图片
+          </a-button>
+          <a-tag color="orange">有概率截图失败，原因未知</a-tag>
+        </a-descriptions-item>
         <a-descriptions-item :span="3" label="元数据">
           <pre>{{ JSON.stringify(currentDay, null, 2) }}</pre>
         </a-descriptions-item>
       </a-descriptions>
-      <br>
+      <a-divider/>
     </a-drawer>
   </div>
 </template>

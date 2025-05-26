@@ -6,15 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:singlefile": "vite build --config vite.singlefile.config.js",
     "preview": "vite preview",
     "test:unit": "vitest",
     "lint": "eslint . --fix",
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@ant-design/icons-vue": "^7.0.1",
     "@tailwindcss/vite": "^4.1.7",
     "ant-design-vue": "~4.2.6",
     "dayjs": "^1.11.13",
+    "dom-to-image": "^2.6.0",
     "pinia": "^3.0.2",
     "tailwindcss": "^4.1.7",
     "vue": "^3.5.14"
@@ -32,6 +35,7 @@
     "prettier": "3.5.3",
     "unplugin-vue-components": "^28.5.0",
     "vite": "6.3.2",
+    "vite-plugin-singlefile": "^2.2.0",
     "vite-plugin-vue-devtools": "^7.7.6",
     "vitest": "^3.1.4"
   }

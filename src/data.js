@@ -41,8 +41,6 @@ class GroupBroadcasting {
 class Live {
   constructor (time) {
     this.startingTime = time
-    this.rest = false
-
     this.vtuberName = vtuberListEn[Math.floor(Math.random() * vtuberListEn.length)]
   }
 
@@ -50,27 +48,8 @@ class Live {
     console.log('Clicked session:', this)
     const nextVTuber = getNextVTuber(this.vtuberName)
     console.log('下一个 VTuber 是:', nextVTuber)
-    this.updateVtuber(nextVTuber)
+    this.vtuberName = nextVTuber
   }
-
-  updateStartingTime (time) {
-    if (time instanceof dayjs) {
-      this.startingTime = time
-    } else if (typeof time === 'string') {
-      this.startingTime = dayjs(time, 'HH:mm')
-    } else {
-      throw new Error(
-        'Invalid time format. Use a dayjs instance or a string in HH:mm format.',
-      )
-    }
-  }
-
-  updateVtuber (vtuberName) {
-    this.vtuberName = vtuberName
-  }
-
-  handleStartingTimeClick () {}
-
 }
 
 export const dayClassToChinese = {
@@ -83,78 +62,6 @@ export const dayClassToChinese = {
   saturday: '周六',
 }
 
-export const fontOptions = [
-  {
-    value: 'text-[2vh]',
-    label: '2vh',
-  },
-  {
-    value: 'text-[2.5px]',
-    label: '2.5vh',
-  },
-  {
-    value: 'text-[3vh]',
-    label: '3vh (默认)',
-  },
-  {
-    value: 'text-[3.5vh]',
-    label: '3.5vh',
-  },
-  {
-    value: 'text-[4vh]',
-    label: '4vh',
-  },
-  {
-    value: 'text-[4.5vh]',
-    label: '4.5vh',
-  },
-  {
-    value: 'text-[5vh]',
-    label: '5vh',
-  },
-]
-
-export function getRandomElementFromList (list) {
-  return list[Math.floor(Math.random() * list.length)]
-}
-
-export function stringToList (data) {
-  if (typeof data === 'string') {
-    return [data]
-  } else if (Array.isArray(data)) {
-    return data
-  } else if (data === null) {
-    return []
-  }
-  throw new Error('Data is not a string or an array')
-}
-
-export const formatWithLeadingZero = (maxLength, number) => {
-  return number.toString().padStart(2, '0')
-}
-
-export function extractDateComponents (date) {
-  const year = date.getFullYear()
-  const month = formatWithLeadingZero(2, date.getMonth() + 1)
-  const day = formatWithLeadingZero(2, date.getDate())
-  return `${year}.${month}.${day}`
-}
-
-export function updateClass (classArray, strOrList, action) {
-  classArray = stringToList(classArray)
-  strOrList = stringToList(strOrList)
-  let newClassArray = []
-  if (action === 'add') {
-    newClassArray = [...classArray, ...stringToList(strOrList)]
-  } else {
-    for (let item of classArray) {
-      if (!strOrList.includes(item)) {
-        newClassArray.push(item)
-      }
-    }
-  }
-  return newClassArray
-}
 
 
 class Day {
@@ -169,13 +76,13 @@ class Day {
   }
 }
 
-
 export class ScheduleDataList {
   constructor () {
     this.init()
   }
 
   init () {
+    // noinspection JSUnusedGlobalSymbols
     this.dateRange = new dayjs()
     let start = new dayjs()
     const days = []
@@ -187,6 +94,7 @@ export class ScheduleDataList {
   }
 
   updateDateRange (newDateRange) {
+    // noinspection JSUnusedGlobalSymbols
     this.dateRange = newDateRange
     let start = dayjs(newDateRange)
     for (let i = 0; i < 7; i++) {

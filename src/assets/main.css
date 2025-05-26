@@ -30,14 +30,6 @@
     font-style: normal;
 }
 
-.main {
-    width: 150vh;
-    height: 100vh;
-    background-image: url("/src/assets/images/bg.webp"); /* 背景图片路径 */
-    background-size: cover; /* 图片拉伸以覆盖整个容器 */
-    background-position: center; /* 图片居中显示 */
-}
-
 
 .with-image {
     position: relative;
