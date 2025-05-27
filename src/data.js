@@ -35,7 +35,7 @@ class GroupBroadcasting {
     this.startingTime = time
     this.vtuberName = vtuberName
     this.customContent = '团播'
-    this.customFontSize = 3
+    this.customFontSize = 4.75
   }
 }
 
@@ -46,7 +46,7 @@ class Live {
     this.vtuberName = vtuberListEn[Math.floor(Math.random() * vtuberListEn.length)]
     this.customContent = ''
     this.type = 'normal' // normal, custom
-    this.customFontSize = 3
+    this.customFontSize = 4.75
   }
 
   handleVtuberClick () {

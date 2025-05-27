@@ -90,15 +90,15 @@ watch(customLateVtuberType, (val) => {
         :key="index"
         class="flex w-1/7 h-full flex-col divide-y-[0.5vh] divide-sxwz"
     >
-      <div class="flex h-[26.66%] w-full flex-col items-center" @click="showDrawer(daySchedule)">
+      <div class="flex h-[30%] w-full flex-col items-center" @click="showDrawer(daySchedule)">
         <div class="h-[13%]"/>
         <div
-            class="h-[38%] text-sxwz text-[3.5vh] font-display items-center flex justify-center"
+            class="h-[38%] text-sxwz text-[5vh] font-display items-center flex justify-center"
         >
           {{ randomData.data[index].dayOfWeek }}
         </div>
         <div class="h-[14.7%]"/>
-        <time class="day text-sxwz-light text-[3vh] font-display h-[21%] items-center flex justify-center">
+        <time class="day text-sxwz-light text-[2.75vh] font-display h-[21%] items-center flex justify-center">
           {{ randomData.data[index].date }}
         </time>
       </div>
@@ -114,7 +114,7 @@ watch(customLateVtuberType, (val) => {
               class="h-[50%] flex flex-col items-center justify-center relative"
           >
             <div
-                class="text-sxwz text-[3vh] font-display select-none"
+                class="text-sxwz text-[4.75vh] leading-[5vh]  font-display select-none"
                 @click="showDrawer(daySchedule)"
             >
               {{ startingTimeText(live) }}
@@ -124,7 +124,7 @@ watch(customLateVtuberType, (val) => {
                   v-if="live.type !== 'custom'"
                   :key="`${live.vtuberName}-${timeKey}`"
                   :style="{ fontSize: `${live.customFontSize}vh` }"
-                  class="text-sxwz font-display select-none"
+                  class="text-sxwz font-display select-none leading-[5vh] "
                   @click="live.handleVtuberClick()"
               >
                 {{ VtuberType[live.vtuberName] }}
@@ -132,7 +132,7 @@ watch(customLateVtuberType, (val) => {
               <div v-else
                    :key="`${live.customContent}-${timeKey}`"
                    :style="{ fontSize: `${live.customFontSize}vh` }"
-                   class="text-sxwz font-display select-none text-center"
+                   class="text-sxwz font-display select-none text-center leading-[5vh] "
                    v-html="live.customContent.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"/>
             </transition>
 
@@ -146,14 +146,14 @@ watch(customLateVtuberType, (val) => {
           <div v-if="daySchedule.type === DayType.GROUP_BROADCASTING"
                class="w-full h-full flex items-center justify-center flex-col relative">
             <div
-                class="text-sxwz text-[3vh] font-display select-none"
+                class="text-sxwz text-[4.75vh] font-display select-none leading-[5vh] "
             >
               {{ daySchedule.groupBroadcasting.startingTime?.format('HH:mm') }}
             </div>
             <transition mode="out-in" name="icon-blur">
               <div
                   :style="{ fontSize: `${currentDay.groupBroadcasting.customFontSize}vh` }"
-                  class="text-sxwz font-display select-none text-center"
+                  class="text-sxwz font-display select-none text-center leading-[5vh] "
                   v-html="daySchedule.groupBroadcasting.customContent.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"
               >
               </div>
@@ -166,6 +166,8 @@ watch(customLateVtuberType, (val) => {
         </div>
       </transition>
     </div>
+
+
     <a-drawer
         v-model:open="openDrawer"
         :root-style="{ color: 'blue' }"
@@ -216,7 +218,7 @@ watch(customLateVtuberType, (val) => {
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="内容字体大小">
           <div class="flex justify-center items-center w-full">
-            <a-slider v-model:value="currentDay['early'].customFontSize" :max="6" :min="2" :step="0.1" class="w-3/5"/>
+            <a-slider v-model:value="currentDay['early'].customFontSize" :max="6" :min="2" :step="0.25" class="w-3/5"/>
             <a-input-number v-model:value="currentDay['early'].customFontSize" :max="6" :min="2" addon-after="vh"
                             class="w-2/5 ml-4"/>
           </div>
@@ -271,8 +273,10 @@ watch(customLateVtuberType, (val) => {
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="内容字体大小">
           <div class="flex justify-center items-center w-full">
-            <a-slider v-model:value="currentDay.groupBroadcasting.customFontSize" :max="6" :min="2" :step="0.1" class="w-3/5"/>
-            <a-input-number v-model:value="currentDay.groupBroadcasting.customFontSize" :max="6" :min="2" addon-after="vh" class="w-2/5 ml-4"/>
+            <a-slider v-model:value="currentDay.groupBroadcasting.customFontSize" :max="6" :min="2" :step="0.1"
+                      class="w-3/5"/>
+            <a-input-number v-model:value="currentDay.groupBroadcasting.customFontSize" :max="6" :min="2"
+                            addon-after="vh" class="w-2/5 ml-4"/>
           </div>
         </a-descriptions-item>
         <a-descriptions-item
