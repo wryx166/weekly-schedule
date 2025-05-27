@@ -3,6 +3,7 @@ import dayjs from 'dayjs'
 export const SessionType = {
   EARLY: 'early', // 早场
   LATE: 'late', // 晚场
+  GROUP_BROADCASTING: 'groupBroadcasting', // 集体直播
 }
 
 export const DayType = {
@@ -34,6 +35,7 @@ class GroupBroadcasting {
     this.startingTime = time
     this.vtuberName = vtuberName
     this.customContent = '团播'
+    this.customFontSize = 3
   }
 }
 
@@ -42,6 +44,9 @@ class Live {
   constructor (time) {
     this.startingTime = time
     this.vtuberName = vtuberListEn[Math.floor(Math.random() * vtuberListEn.length)]
+    this.customContent = ''
+    this.type = 'normal' // normal, custom
+    this.customFontSize = 3
   }
 
   handleVtuberClick () {
@@ -61,8 +66,6 @@ export const dayClassToChinese = {
   friday: '周五',
   saturday: '周六',
 }
-
-
 
 class Day {
   constructor (day) {
