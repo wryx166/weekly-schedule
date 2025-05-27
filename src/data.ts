@@ -1,10 +1,5 @@
 import dayjs from 'dayjs'
 
-export const SessionType = {
-  EARLY: 'early', // 早场
-  LATE: 'late', // 晚场
-  GROUP_BROADCASTING: 'groupBroadcasting', // 集体直播
-}
 
 export const DayType = {
   NORMAL: 'normal', // 普通日
@@ -12,7 +7,7 @@ export const DayType = {
   GROUP_BROADCASTING: 'groupBroadcasting', // 集体直播
 }
 
-export const VtuberType = {
+export const VtuberType: { [key: string]: string } = {
   queenie: '沐霂',
   lian: '梨安',
   bekki: '恬豆',
@@ -31,7 +26,13 @@ const daysOfWeek = [
 ]
 
 class GroupBroadcasting {
-  constructor (time, vtuberName) {
+  startingTime: dayjs.Dayjs
+  vtuberName: string
+  customContent: string
+  customFontSize: number
+
+
+  constructor(time: dayjs.Dayjs, vtuberName: string) {
     this.startingTime = time
     this.vtuberName = vtuberName
     this.customContent = '团播'
@@ -40,8 +41,15 @@ class GroupBroadcasting {
 }
 
 // 单独的时间段
-class Live {
-  constructor (time) {
+export class Live {
+  startingTime: dayjs.Dayjs
+  vtuberName: string
+  customContent: string
+  type: string
+  customFontSize: number
+
+
+  constructor(time: dayjs.Dayjs) {
     this.startingTime = time
     this.vtuberName = vtuberListEn[Math.floor(Math.random() * vtuberListEn.length)]
     this.customContent = ''
@@ -49,15 +57,15 @@ class Live {
     this.customFontSize = 4.75
   }
 
-  handleVtuberClick () {
+  handleVtuberClick() {
     console.log('Clicked session:', this)
-    const nextVTuber = getNextVTuber(this.vtuberName)
+    const nextVTuber: string = getNextVTuber(this.vtuberName)
     console.log('下一个 VTuber 是:', nextVTuber)
     this.vtuberName = nextVTuber
   }
 }
 
-export const dayClassToChinese = {
+export const dayClassToChinese: { [key: string]: string } = {
   sunday: '周日',
   monday: '周一',
   tuesday: '周二',
@@ -67,27 +75,33 @@ export const dayClassToChinese = {
   saturday: '周六',
 }
 
-class Day {
-  constructor (day) {
+export class Day {
+  day: dayjs.Dayjs
+  date: string
+  dayOfWeek: string
+  type: string // normal, restDay, groupBroadcasting
+  early: Live
+  late: Live
+  groupBroadcasting: GroupBroadcasting
+
+  constructor(day: dayjs.Dayjs) {
     this.day = day
     this.date = day.format('MM.DD')
     this.dayOfWeek = dayClassToChinese[daysOfWeek[day.day()]]
     this.type = DayType.NORMAL // normal, restDay, groupBroadcasting
-    this[SessionType.EARLY] = new Live(day.clone().hour(18).minute(30))
-    this[SessionType.LATE] = new Live(day.clone().hour(21).minute(0))
-    this.groupBroadcasting = new GroupBroadcasting(day.clone().hour(19).minute(30), this[SessionType.EARLY].vtuberName)
+    this.early = new Live(day.clone().hour(18).minute(30))
+    this.late = new Live(day.clone().hour(21).minute(0))
+    this.groupBroadcasting = new GroupBroadcasting(day.clone().hour(19).minute(30), this.early.vtuberName)
   }
 }
 
 export class ScheduleDataList {
-  constructor () {
-    this.init()
-  }
+  dateRange: dayjs.Dayjs
+  data: Day[]
 
-  init () {
-    // noinspection JSUnusedGlobalSymbols
-    this.dateRange = new dayjs()
-    let start = new dayjs()
+  constructor() {
+    this.dateRange = dayjs()
+    let start = dayjs()
     const days = []
     for (let i = 0; i < 7; i++) {
       days.push(new Day(start))
@@ -96,7 +110,7 @@ export class ScheduleDataList {
     this.data = days
   }
 
-  updateDateRange (newDateRange) {
+  updateDateRange(newDateRange: dayjs.Dayjs) {
     // noinspection JSUnusedGlobalSymbols
     this.dateRange = newDateRange
     let start = dayjs(newDateRange)
@@ -110,28 +124,29 @@ export class ScheduleDataList {
     }
   }
 
-  getDayOfWeek (day) {
+  getDayOfWeek(day: dayjs.Dayjs): string {
     return dayClassToChinese[daysOfWeek[day.day()]]
   }
 }
 
 class CircularQueue {
-  items = []
+  items: string[]
 
-  constructor (items) {
+  constructor(items: string[]) {
     this.items = [...items]
   }
 
-  getNext (value) {
+  getNext(value: string): string {
     const index = this.items.indexOf(value)
-    if (index === -1) return undefined // 值不存在于队列中
-
+    if (index === -1) {
+      throw new Error(`Value "${value}" not found in the queue.`)
+    }
     const nextIndex = (index + 1) % this.items.length
     return this.items[nextIndex]
   }
 }
 
-const getNextVTuber = (() => {
+const getNextVTuber: (vtuber: string) => string = (() => {
   const queue = new CircularQueue(vtuberListEn)
-  return (vtuber) => queue.getNext(vtuber)
+  return (vtuber: string) => queue.getNext(vtuber)
 })()

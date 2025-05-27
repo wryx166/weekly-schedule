@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
-import { ScheduleDataList } from "@/data.js";
+import { ScheduleDataList } from "@/data.ts";
 
 export const useScheduleStore = defineStore("schedule", {
   state: () => ({
     randomData: new ScheduleDataList(),
   }),
   actions: {
-    updateRandomData(data) {
+    updateRandomData(data: ScheduleDataList) {
       this.randomData = data;
     },
   },
