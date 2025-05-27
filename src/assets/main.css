@@ -31,27 +31,6 @@
 }
 
 
-.with-image {
-    position: relative;
-}
-
-.with-image::after {
-    content: "";
-    position: absolute;
-    bottom: -15px;
-    left: 70%;
-    /*transform: translateX(-50%);*/
-    width: 3vh;
-    height: 3vh;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.with-image,
-.with-image::after {
-    transition: opacity 0.3s;
-}
-
 .icon.queenie {
     background-image: url("/src/assets/images/queenie.png");
 }
@@ -77,18 +56,4 @@
     bottom: 0;
     left: 70%;
     translate: 0 50%;
-}
-
-.with-image.rest::after {
-    /*visibility: hidden;*/
-    content: "";
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    height: 100px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-image: url("/src/assets/images/rest.png");
 }
