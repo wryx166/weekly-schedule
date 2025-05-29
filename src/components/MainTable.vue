@@ -1,21 +1,36 @@
 <script lang="ts" setup>
-import {onMounted, ref, watch} from 'vue'
-import {Day, DayType, Live, VtuberType} from '@/data.ts'
+import {computed, ref, watch} from 'vue'
+import {
+  Day,
+  DayType,
+  IconType,
+  Live,
+  LiveType,
+  VtuberIconToEN,
+  VtuberType,
+  VtuberTypeToIcon
+} from '@/data.ts'
 import {useScheduleStore} from '@/store/scheduleStore.ts'
 import {DownloadOutlined} from '@ant-design/icons-vue'
 // noinspection SpellCheckingInspection
 import domtoimage from 'dom-to-image'
 
-const scheduleStore = useScheduleStore()
-const randomData = ref(scheduleStore.randomData)
+const dayList = computed(() => {
+  return useScheduleStore().randomData.data
+})
 const openDrawer = ref(false)
 const currentDay = ref<Day | null>(null)
+
+const currentEarlyLive = computed(() => {
+  return currentDay.value?.early
+})
+const currentLateLive = computed(() => {
+  return currentDay.value?.late
+})
+
 const customEarlyVtuberType = ref('')
 const customLateVtuberType = ref('')
 
-onMounted(() => {
-  scheduleStore.updateRandomData(randomData.value)
-})
 
 const startingTimeText = (live: Live) => {
   return live.startingTime.format('HH:mm')
@@ -24,17 +39,10 @@ const startingTimeText = (live: Live) => {
 const showDrawer = (day: Day) => {
   openDrawer.value = true
   currentDay.value = day
-  if (day.early.type !== 'custom') {
-    customEarlyVtuberType.value = day.early.vtuberName
-  } else {
-    customEarlyVtuberType.value = 'custom'
-  }
 
-  if (day.late.type !== 'custom') {
-    customLateVtuberType.value = day.late.vtuberName
-  } else {
-    customLateVtuberType.value = 'custom'
-  }
+  const {early, late} = day
+  customEarlyVtuberType.value = early.content
+  customLateVtuberType.value = late.content
 
   console.log('open', day)
 }
@@ -57,25 +65,29 @@ const downloadScreenshot = () => {
     })
 }
 
-// 监听 vtuberName，如果切换到自定义，自动填充输入框
+// 监听 icon，如果切换到自定义，自动填充输入框
 watch(customEarlyVtuberType, (val) => {
   console.log('customEarlyVtuberType', val)
-  if (val !== 'custom') {
-    currentDay.value!.early.type = 'normal'
-    currentDay.value!.early.customContent = VtuberType[val]
-    currentDay.value!.early.vtuberName = val
+  if (!currentEarlyLive.value) return
+  if (val !== VtuberType.CUSTOM) {
+    currentEarlyLive.value.type = LiveType.NORMAL
+    currentEarlyLive.value.content = val
+    currentEarlyLive.value.icon = VtuberTypeToIcon[val]
   } else {
-    currentDay.value!.early.type = 'custom'
+    currentEarlyLive.value.type = LiveType.CUSTOM
+    // 保留原有 content icon ，不做覆盖
   }
 })
 watch(customLateVtuberType, (val) => {
   console.log('customLateVtuberType', val)
-  if (val !== 'custom') {
-    currentDay.value!.late.type = 'normal'
-    currentDay.value!.late.customContent = VtuberType[val]
-    currentDay.value!.late.vtuberName = val
+  if (!currentLateLive.value) return
+  if (val !== VtuberType.CUSTOM) {
+    currentLateLive.value.type = LiveType.NORMAL
+    currentLateLive.value.content = val
+    currentLateLive.value.icon = VtuberTypeToIcon[val]
   } else {
-    currentDay.value!.late.type = 'custom'
+    currentLateLive.value.type = LiveType.CUSTOM
+    // 保留原有 content icon ，不做覆盖
   }
 })
 </script>
@@ -83,84 +95,84 @@ watch(customLateVtuberType, (val) => {
 <template>
   <div :class="$attrs.class" class=" flex divide-x-[0.5vh] divide-sxwz border-[0.5vh] border-sxwz">
     <div
-      v-for="(daySchedule, index) in randomData.data"
+      v-for="(day, index) in dayList"
       :key="index"
       class="flex w-1/7 h-full flex-col divide-y-[0.5vh] divide-sxwz"
+      @click="showDrawer(day)"
     >
-      <div class="flex h-[30%] w-full flex-col items-center" @click="showDrawer(daySchedule)">
+      <div class="flex h-[30%] w-full flex-col items-center">
         <div class="h-[13%]"/>
         <div
           class="h-[38%] text-sxwz text-[5vh] font-display items-center flex justify-center"
         >
-          {{ randomData.data[index].dayOfWeek }}
+          {{ day.dayOfWeek }}
         </div>
         <div class="h-[14.7%]"/>
         <time
           class="day text-sxwz-light text-[2.75vh] font-display h-[21%] items-center flex justify-center">
-          {{ randomData.data[index].date }}
+          {{ day.date }}
         </time>
       </div>
       <transition mode="out-in" name="icon-blur">
-        <div :key="daySchedule.type"
+        <div :key="day.type"
              class="flex-grow flex w-full flex-col divide-y-[0.5vh] divide-sxwz">
           <div
             v-for="(live, timeKey) in {
-            'early': daySchedule.early,
-            'late': daySchedule.late,
+            'early': day.early,
+            'late': day.late,
           }"
-            v-if="daySchedule.type === DayType.NORMAL"
+            v-if="day.type === DayType.NORMAL"
             :key="timeKey"
             class="h-[50%] flex flex-col items-center justify-center relative"
           >
             <div
               class="text-sxwz text-[4.75vh] leading-[5vh]  font-display select-none"
-              @click="showDrawer(daySchedule)"
             >
               {{ startingTimeText(live) }}
             </div>
             <transition mode="out-in" name="icon-blur">
               <div
-                v-if="live.type !== 'custom'"
-                :key="`${live.vtuberName}-${timeKey}`"
-                :style="{ fontSize: `${live.customFontSize}vh` }"
+                v-if="live.type !== LiveType.CUSTOM"
+                :key="`${live.icon}-${timeKey}`"
+                :style="{ fontSize: `${live.fontSize}vh` }"
                 class="text-sxwz font-display select-none leading-[5vh] "
-                @click="live.handleVtuberClick()"
               >
-                {{ VtuberType[live.vtuberName] }}
+                {{ live.content }}
               </div>
               <div v-else
-                   :key="`${live.customContent}-${timeKey}`"
-                   :style="{ fontSize: `${live.customFontSize}vh` }"
+                   :key="`${live.content}-${timeKey}`"
+                   :style="{ fontSize: `${live.fontSize}vh` }"
                    class="text-sxwz font-display select-none text-center leading-[5vh] "
-                   v-html="live.customContent.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"/>
+                   v-html="live.content.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"/>
             </transition>
 
             <transition mode="out-in" name="icon-blur">
-              <div :key="live.vtuberName" :class="live.vtuberName" class="icon"></div>
+              <div :key="live.icon" :class="VtuberIconToEN[live.icon]"
+                   class="icon"></div>
             </transition>
           </div>
-          <div v-if="daySchedule.type === DayType.REST_DAY"
+          <div v-if="day.type === DayType.REST_DAY"
                class="w-full h-full flex items-center justify-center">
             <img alt="" class="w-2/3" src="/src/assets/images/rest.png">
           </div>
-          <div v-if="daySchedule.type === DayType.GROUP_BROADCASTING"
+          <div v-if="day.type === DayType.GROUP"
                class="w-full h-full flex items-center justify-center flex-col relative">
             <div
               class="text-sxwz text-[4.75vh] font-display select-none leading-[5vh] "
             >
-              {{ daySchedule.groupBroadcasting.startingTime?.format('HH:mm') }}
+              {{ day.group.startingTime?.format('HH:mm') }}
             </div>
             <transition mode="out-in" name="icon-blur">
               <div
-                :style="{ fontSize: `${currentDay?.groupBroadcasting.customFontSize}vh` }"
+                :style="{ fontSize: `${day.group.fontSize}vh` }"
                 class="text-sxwz font-display select-none text-center leading-[5vh] "
-                v-html="daySchedule.groupBroadcasting.customContent.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"
+                v-html="day.group.content.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"
               >
               </div>
             </transition>
             <transition mode="out-in" name="icon-blur">
-              <div :key="daySchedule.groupBroadcasting.vtuberName"
-                   :class="daySchedule.groupBroadcasting.vtuberName"
+              <div :key="day.group.icon"
+                   :class="VtuberIconToEN[day.group.icon]"
                    class="icon"></div>
             </transition>
           </div>
@@ -184,117 +196,124 @@ watch(customLateVtuberType, (val) => {
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="当天类型">
           <a-radio-group v-model:value="currentDay.type" button-style="solid" class="w-full flex">
-            <a-radio-button value="normal">正常</a-radio-button>
-            <a-radio-button value="groupBroadcasting">团播/单人</a-radio-button>
-            <a-radio-button value="restDay">休息日</a-radio-button>
-            <a-radio-button value="null">空白</a-radio-button>
+            <a-radio-button :value="DayType.NORMAL">正常</a-radio-button>
+            <a-radio-button :value="DayType.GROUP">团播/单人</a-radio-button>
+            <a-radio-button :value="DayType.REST_DAY">休息日</a-radio-button>
+            <a-radio-button :value="DayType.BLANK">空白</a-radio-button>
           </a-radio-group>
         </a-descriptions-item>
       </a-descriptions>
-      <a-descriptions v-if="currentDay.type === DayType.NORMAL" title="早场">
+      <a-descriptions v-if="currentDay.type === DayType.NORMAL && currentEarlyLive" title="早场">
         <a-descriptions-item :span="3" label="早场时间">
-          <a-time-picker v-model:value="currentDay['early'].startingTime" :allowClear="false"
+          <a-time-picker v-model:value="currentEarlyLive.startingTime" :allowClear="false"
                          format="HH:mm"/>
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="早场直播间">
           <a-radio-group v-model:value="customEarlyVtuberType" button-style="solid"
                          class="w-full flex">
-            <a-radio-button value="lian">梨安</a-radio-button>
-            <a-radio-button value="queenie">沐霂</a-radio-button>
-            <a-radio-button value="bekki">恬豆</a-radio-button>
-            <a-radio-button value="yoyi">又一</a-radio-button>
-            <a-radio-button value="custom">自定义</a-radio-button>
+            <a-radio-button :value="VtuberType.LIAN">{{ VtuberType.LIAN }}</a-radio-button>
+            <a-radio-button :value="VtuberType.QUEENIE">{{ VtuberType.QUEENIE }}</a-radio-button>
+            <a-radio-button :value="VtuberType.BEKKI">{{ VtuberType.BEKKI }}</a-radio-button>
+            <a-radio-button :value="VtuberType.YOYI">{{ VtuberType.YOYI }}</a-radio-button>
+            <a-radio-button :value="VtuberType.CUSTOM">{{ VtuberType.CUSTOM }}</a-radio-button>
           </a-radio-group>
         </a-descriptions-item>
-        <a-descriptions-item v-if="customEarlyVtuberType === 'custom'" :span="3" label="自定义内容">
-          <a-textarea v-model:value="currentDay['early'].customContent"
+        <a-descriptions-item v-if="customEarlyVtuberType === VtuberType.CUSTOM" :span="3"
+                             label="自定义内容">
+          <a-textarea v-model:value="currentEarlyLive.content"
                       class="w-full mt-2" placeholder="请输入自定义内容"/>
         </a-descriptions-item>
-        <a-descriptions-item v-if="customEarlyVtuberType === 'custom'" :span="3" label="自定义图标">
-          <a-radio-group v-model:value="currentDay['early'].vtuberName" class="w-full flex">
-            <a-radio-button value="lian">梨</a-radio-button>
-            <a-radio-button value="queenie">沐</a-radio-button>
-            <a-radio-button value="bekki">恬</a-radio-button>
-            <a-radio-button value="yoyi">又</a-radio-button>
-            <a-radio-button value="custom">不显示</a-radio-button>
+        <a-descriptions-item v-if="customEarlyVtuberType === VtuberType.CUSTOM" :span="3"
+                             label="自定义图标">
+          <a-radio-group v-model:value="currentEarlyLive.icon" class="w-full flex">
+            <a-radio-button
+              v-for="([key, value]) in Object.entries(IconType)"
+              :key="key"
+              :value="value">
+              {{ value }}
+            </a-radio-button>
           </a-radio-group>
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="内容字体大小">
           <div class="flex justify-center items-center w-full">
-            <a-slider v-model:value="currentDay['early'].customFontSize" :max="6" :min="2"
+            <a-slider v-model:value="currentEarlyLive.fontSize" :max="6" :min="2"
                       :step="0.25" class="w-3/5"/>
-            <a-input-number v-model:value="currentDay['early'].customFontSize" :max="6" :min="2"
+            <a-input-number v-model:value="currentEarlyLive.fontSize" :max="6" :min="2"
                             addon-after="vh"
                             class="w-2/5 ml-4"/>
           </div>
         </a-descriptions-item>
       </a-descriptions>
-      <a-descriptions v-if="currentDay.type === DayType.NORMAL" title="晚场">
+      <a-descriptions v-if="currentDay.type === DayType.NORMAL && currentLateLive" title="晚场">
         <a-descriptions-item :span="3" label="晚场时间">
-          <a-time-picker v-model:value="currentDay['late'].startingTime" :allowClear="false"
+          <a-time-picker v-model:value="currentLateLive.startingTime" :allowClear="false"
                          format="HH:mm"/>
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="晚场直播间">
           <a-radio-group v-model:value="customLateVtuberType" button-style="solid"
                          class="w-full flex">
-            <a-radio-button value="lian">梨安</a-radio-button>
-            <a-radio-button value="queenie">沐霂</a-radio-button>
-            <a-radio-button value="bekki">恬豆</a-radio-button>
-            <a-radio-button value="yoyi">又一</a-radio-button>
-            <a-radio-button value="custom">自定义</a-radio-button>
+            <a-radio-button :value="VtuberType.LIAN">{{ VtuberType.LIAN }}</a-radio-button>
+            <a-radio-button :value="VtuberType.QUEENIE">{{ VtuberType.QUEENIE }}</a-radio-button>
+            <a-radio-button :value="VtuberType.BEKKI">{{ VtuberType.BEKKI }}</a-radio-button>
+            <a-radio-button :value="VtuberType.YOYI">{{ VtuberType.YOYI }}</a-radio-button>
+            <a-radio-button :value="VtuberType.CUSTOM">{{ VtuberType.CUSTOM }}</a-radio-button>
           </a-radio-group>
         </a-descriptions-item>
-        <a-descriptions-item v-if="customLateVtuberType === 'custom'" :span="3" label="自定义内容">
-          <a-textarea v-model:value="currentDay['late'].customContent"
+        <a-descriptions-item v-if="customLateVtuberType === VtuberType.CUSTOM" :span="3"
+                             label="自定义内容">
+          <a-textarea v-model:value="currentLateLive.content"
                       class="w-full mt-2" placeholder="请输入自定义内容"/>
         </a-descriptions-item>
-        <a-descriptions-item v-if="customLateVtuberType === 'custom'" :span="3" label="自定义图标">
-          <a-radio-group v-model:value="currentDay['late'].vtuberName" class="w-full flex">
-            <a-radio-button value="lian">梨</a-radio-button>
-            <a-radio-button value="queenie">沐</a-radio-button>
-            <a-radio-button value="bekki">恬</a-radio-button>
-            <a-radio-button value="yoyi">又</a-radio-button>
-            <a-radio-button value="custom">不显示</a-radio-button>
+        <a-descriptions-item v-if="customLateVtuberType === VtuberType.CUSTOM" :span="3"
+                             label="自定义图标">
+          <a-radio-group v-model:value="currentLateLive.icon" class="w-full flex">
+            <a-radio-button
+              v-for="([key, value]) in Object.entries(IconType)"
+              :key="key"
+              :value="value">
+              {{ value }}
+            </a-radio-button>
           </a-radio-group>
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="内容字体大小">
           <div class="flex justify-center items-center w-full">
-            <a-slider v-model:value="currentDay['late'].customFontSize" :max="6" :min="2"
+            <a-slider v-model:value="currentLateLive.fontSize" :max="6" :min="2"
                       :step="0.1" class="w-3/5"/>
-            <a-input-number v-model:value="currentDay['late'].customFontSize" :max="6" :min="2"
+            <a-input-number v-model:value="currentLateLive.fontSize" :max="6" :min="2"
                             addon-after="vh"
                             class="w-2/5 ml-4"/>
           </div>
         </a-descriptions-item>
       </a-descriptions>
-      <a-descriptions v-if="currentDay.type === DayType.GROUP_BROADCASTING" title="团播">
+      <a-descriptions v-if="currentDay.type === DayType.GROUP" title="团播">
         <a-descriptions-item :span="3" label="直播间图标">
-          <a-radio-group v-model:value="currentDay['groupBroadcasting'].vtuberName"
+          <a-radio-group v-model:value="currentDay.group.icon"
                          class="w-full flex">
-            <a-radio-button value="lian">梨</a-radio-button>
-            <a-radio-button value="queenie">沐</a-radio-button>
-            <a-radio-button value="bekki">恬</a-radio-button>
-            <a-radio-button value="yoyi">又</a-radio-button>
-            <a-radio-button value="custom">不显示</a-radio-button>
+            <a-radio-button
+              v-for="([key, value]) in Object.entries(IconType)"
+              :key="key"
+              :value="value">
+              {{ value }}
+            </a-radio-button>
           </a-radio-group>
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="时间">
-          <a-time-picker v-model:value="currentDay.groupBroadcasting.startingTime"
+          <a-time-picker v-model:value="currentDay.group.startingTime"
                          :allowClear="false" format="HH:mm"/>
         </a-descriptions-item>
         <a-descriptions-item :span="3" label="内容字体大小">
           <div class="flex justify-center items-center w-full">
-            <a-slider v-model:value="currentDay.groupBroadcasting.customFontSize" :max="6" :min="2"
+            <a-slider v-model:value="currentDay.group.fontSize" :max="6" :min="2"
                       :step="0.1"
                       class="w-3/5"/>
-            <a-input-number v-model:value="currentDay.groupBroadcasting.customFontSize" :max="6"
+            <a-input-number v-model:value="currentDay.group.fontSize" :max="6"
                             :min="2"
                             addon-after="vh" class="w-2/5 ml-4"/>
           </div>
         </a-descriptions-item>
         <a-descriptions-item
           :span="3" label="自定义内容">
-          <a-textarea v-model:value="currentDay['groupBroadcasting'].customContent"
+          <a-textarea v-model:value="currentDay.group.content"
                       :auto-size="{ minRows: 3}"
                       placeholder="请输入直播间内容"/>
         </a-descriptions-item>
