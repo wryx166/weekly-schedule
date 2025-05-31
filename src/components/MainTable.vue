@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {computed, ref, watch} from 'vue'
+import {computed, ref, watchEffect} from 'vue'
 import {
   Day,
   DayType,
@@ -65,30 +65,25 @@ const downloadScreenshot = () => {
     })
 }
 
-// 监听 icon，如果切换到自定义，自动填充输入框
-watch(customEarlyVtuberType, (val) => {
-  console.log('customEarlyVtuberType', val)
-  if (!currentEarlyLive.value) return
-  if (val !== VtuberType.CUSTOM) {
-    currentEarlyLive.value.type = LiveType.NORMAL
-    currentEarlyLive.value.content = val
-    currentEarlyLive.value.icon = VtuberTypeToIcon[val]
+function updateLiveType(live: Live | undefined, vtuberType: string) {
+  if (!live) return
+  if (vtuberType !== VtuberType.CUSTOM) {
+    // 用于关闭自定义内容和图标
+    live.type = LiveType.NORMAL
+    // 更新显示内容为 vtuberType
+    live.content = vtuberType
+    // 更新图标为对应的vtuber
+    live.icon = VtuberTypeToIcon[vtuberType]
   } else {
-    currentEarlyLive.value.type = LiveType.CUSTOM
-    // 保留原有 content icon ，不做覆盖
+    // 打开自定义内容和图标
+    live.type = LiveType.CUSTOM
+    // 保留原有 content 和 icon
   }
-})
-watch(customLateVtuberType, (val) => {
-  console.log('customLateVtuberType', val)
-  if (!currentLateLive.value) return
-  if (val !== VtuberType.CUSTOM) {
-    currentLateLive.value.type = LiveType.NORMAL
-    currentLateLive.value.content = val
-    currentLateLive.value.icon = VtuberTypeToIcon[val]
-  } else {
-    currentLateLive.value.type = LiveType.CUSTOM
-    // 保留原有 content icon ，不做覆盖
-  }
+}
+
+watchEffect(() => {
+  updateLiveType(currentEarlyLive.value, customEarlyVtuberType.value)
+  updateLiveType(currentLateLive.value, customLateVtuberType.value)
 })
 </script>
 
