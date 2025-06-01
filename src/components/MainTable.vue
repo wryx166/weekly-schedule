@@ -1,7 +1,9 @@
 <script lang="ts" setup>
-import {computed, ref, watchEffect} from 'vue'
+import {computed, defineProps, type Ref, ref, watchEffect} from 'vue'
 import {
   Day,
+  dayClassToChinese,
+  daysOfWeek,
   DayType,
   IconType,
   Live,
@@ -10,14 +12,27 @@ import {
   VtuberType,
   VtuberTypeToIcon
 } from '@/data.ts'
-import {useScheduleStore} from '@/store/scheduleStore.ts'
 import {DownloadOutlined} from '@ant-design/icons-vue'
 // noinspection SpellCheckingInspection
 import domtoimage from 'dom-to-image'
+import dayjs from "dayjs";
 
-const dayList = computed(() => {
-  return useScheduleStore().randomData.data
+const { firstDay } = defineProps<{ firstDay: dayjs.Dayjs }>()
+const dayList: Ref<Day[]> = Day.initDayList(firstDay);
+
+watchEffect(() => {
+  let start = dayjs(firstDay)
+  for (let i = 0; i < 7; i++) {
+    const dayData:Day = dayList.value[i]
+    if (dayData) {
+      dayData.date = start.format('MM.DD')
+      dayData.dayOfWeek = dayClassToChinese[daysOfWeek[start.day()]]
+    }
+    start = start.add(1, 'day')
+  }
+  console.log('dayList updated:', dayList.value)
 })
+
 const openDrawer = ref(false)
 const currentDay = ref<Day | null>(null)
 

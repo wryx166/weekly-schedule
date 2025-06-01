@@ -1,28 +1,23 @@
 <script lang="ts" setup>
-import {computed, onMounted, ref} from "vue";
-import {useScheduleStore} from "@/store/scheduleStore.ts";
-
-const scheduleStore = useScheduleStore();
-const randomData = ref(scheduleStore.randomData);
+import {computed, ref} from "vue";
+import dayjs from "dayjs";
 const open = ref(false);
 const value1 = ref();
-onMounted(() => {
-  scheduleStore.updateRandomData(randomData.value);
-});
+const firstDay= defineModel<dayjs.Dayjs>('firstDay');
+
 const showModal = () => {
   open.value = true;
-  value1.value = randomData.value.dateRange;
+  value1.value = firstDay.value;
 };
 
 const handleOk = () => {
-  if (!value1.value) {
-    return;
-  }
-  randomData.value.updateDateRange(value1.value);
+  if (!value1.value) return;
+  firstDay.value = value1.value;
   open.value = false;
 };
 const dateRangeText = computed(() => {
-  const start = randomData.value.dateRange;
+  const start = firstDay.value;
+  if (!start) throw  new Error("Invalid start date");
   const end = start.add(6, "day");
   return `${start.format("YYYY.MM.DD")}-${end.format("YYYY.MM.DD")}`;
 });

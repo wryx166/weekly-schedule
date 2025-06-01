@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import MainTable from '@/components/MainTable.vue'
 import DateDisplayTrigger from '@/components/DateDisplayTrigger.vue'
+import {ref} from 'vue'
+import dayjs from 'dayjs'
+
+const firstDay = ref(dayjs());
 </script>
 
 <template>
@@ -9,12 +13,13 @@ import DateDisplayTrigger from '@/components/DateDisplayTrigger.vue'
   >
     <div class="w-full row-start-1"/>
     <DateDisplayTrigger
+      v-model:first-day="firstDay"
       class="row-start-2 w-full h-full"
     />
     <div class="w-full row-start-3"/>
     <MainTable
       class="row-start-4 w-[95.14%] h-full"
-    />
+      :first-day="firstDay"/>
   </div>
 </template>
 

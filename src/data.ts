@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import {type Ref, ref} from "vue";
 
 
 export const DayType = {
@@ -44,7 +45,7 @@ export const VtuberIconToEN: { [key: string]: string } = {
   [IconType.NULL]: 'null',
 }
 
-const daysOfWeek = [
+export const daysOfWeek = [
   'sunday',
   'monday',
   'tuesday',
@@ -117,38 +118,13 @@ export class Day {
     this.late = new Live(day.clone().hour(21).minute(0))
     this.group = new Group(day.clone().hour(19).minute(30), this.early.icon)
   }
-}
 
-export class ScheduleDataList {
-  dateRange: dayjs.Dayjs
-  data: Day[]
-
-  constructor() {
-    this.dateRange = dayjs()
-    let start = dayjs()
-    const days = []
+  static initDayList(start:dayjs.Dayjs = dayjs()): Ref<Day[]> {
+    const days = ref<Day[]>([])
     for (let i = 0; i < 7; i++) {
-      days.push(new Day(start))
+      days.value.push(new Day(start))
       start = start.add(1, 'day')
     }
-    this.data = days
-  }
-
-  updateDateRange(newDateRange: dayjs.Dayjs) {
-    // noinspection JSUnusedGlobalSymbols
-    this.dateRange = newDateRange
-    let start = dayjs(newDateRange)
-    for (let i = 0; i < 7; i++) {
-      const dayData = this.data[i]
-      if (dayData) {
-        dayData.date = start.format('MM.DD')
-        dayData.dayOfWeek = this.getDayOfWeek(start)
-      }
-      start = start.add(1, 'day')
-    }
-  }
-
-  getDayOfWeek(day: dayjs.Dayjs): string {
-    return dayClassToChinese[daysOfWeek[day.day()]]
+    return days
   }
 }
