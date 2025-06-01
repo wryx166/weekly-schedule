@@ -1,32 +1,35 @@
 <script lang="ts" setup>
-import {computed, defineProps, type Ref, ref, watchEffect} from 'vue'
+import {computed, type Ref, ref, watchEffect} from 'vue'
 import {
-  Day,
-  dayClassToChinese,
-  daysOfWeek,
   DayType,
   IconType,
-  Live,
   LiveType,
   VtuberIconToEN,
   VtuberType,
   VtuberTypeToIcon
 } from '@/data.ts'
+import {Day} from '@/models/Day.ts'
+import {Live} from '@/models/Live.ts'
 import {DownloadOutlined} from '@ant-design/icons-vue'
 // noinspection SpellCheckingInspection
 import domtoimage from 'dom-to-image'
 import dayjs from "dayjs";
 
-const { firstDay } = defineProps<{ firstDay: dayjs.Dayjs }>()
+const {firstDay} = defineProps({
+  firstDay: {
+    required: true,
+    type: dayjs.Dayjs
+  }
+})
 const dayList: Ref<Day[]> = Day.initDayList(firstDay);
 
 watchEffect(() => {
   let start = dayjs(firstDay)
   for (let i = 0; i < 7; i++) {
-    const dayData:Day = dayList.value[i]
+    const dayData: Day = dayList.value[i]
     if (dayData) {
       dayData.date = start.format('MM.DD')
-      dayData.dayOfWeek = dayClassToChinese[daysOfWeek[start.day()]]
+      dayData.dayOfWeek = start.format('ddd')
     }
     start = start.add(1, 'day')
   }
