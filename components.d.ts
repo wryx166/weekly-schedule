@@ -23,6 +23,7 @@ declare module 'vue' {
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
     DateDisplayTrigger: typeof import('./src/components/DateDisplayTrigger.vue')['default']
+    DayDrawer: typeof import('./src/components/DayDrawer.vue')['default']
     MainTable: typeof import('./src/components/MainTable.vue')['default']
   }
 }
