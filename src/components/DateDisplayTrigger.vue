@@ -2,8 +2,10 @@
 import {computed, ref} from "vue";
 import dayjs from "dayjs";
 const open = ref(false);
-const value1 = ref();
-const firstDay= defineModel<dayjs.Dayjs>('firstDay');
+const value1 = ref<dayjs.Dayjs>();
+const firstDay= defineModel<dayjs.Dayjs>('firstDay',{
+  required: true
+});
 
 const showModal = () => {
   open.value = true;
@@ -17,7 +19,6 @@ const handleOk = () => {
 };
 const dateRangeText = computed(() => {
   const start = firstDay.value;
-  if (!start) throw  new Error("Invalid start date");
   const end = start.add(6, "day");
   return `${start.format("YYYY.MM.DD")}-${end.format("YYYY.MM.DD")}`;
 });
@@ -32,7 +33,7 @@ const dateRangeText = computed(() => {
       {{ dateRangeText }}
     </time>
   </div>
-  <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk">
+  <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk" v-if="open">
     <a-date-picker v-model:value="value1" :allowClear="false"/>
   </a-modal>
 </template>

@@ -19,15 +19,15 @@ watch(
     customEarlyVtuberType.value = day.early.type === LiveType.NORMAL ? day.early.content : VtuberType.CUSTOM
     customLateVtuberType.value = day.late.type === LiveType.NORMAL ? day.late.content : VtuberType.CUSTOM
   },
-  { immediate: true }
+  {immediate: true}
 )
 
-watch(customEarlyVtuberType,(val) => {
+watch(customEarlyVtuberType, (val) => {
   updateLiveType(currentDay.value.early, val)
 })
 
 
-watch(customLateVtuberType,(val) => {
+watch(customLateVtuberType, (val) => {
   updateLiveType(currentDay.value.late, val)
 })
 
@@ -68,7 +68,6 @@ const downloadScreenshot = () => {
 
 <template>
   <a-drawer
-    v-if="currentDay"
     v-model:open="openDrawer"
     :root-style="{ color: 'blue' }"
     placement="right"
@@ -89,7 +88,7 @@ const downloadScreenshot = () => {
         </a-radio-group>
       </a-descriptions-item>
     </a-descriptions>
-    <a-descriptions v-if="currentDay.type === DayType.NORMAL && currentDay.early" title="早场">
+    <a-descriptions v-if="currentDay.type === DayType.NORMAL" title="早场">
       <a-descriptions-item :span="3" label="早场时间">
         <a-time-picker v-model:value="currentDay.early.startingTime" :allowClear="false"
                        format="HH:mm"/>
@@ -104,22 +103,22 @@ const downloadScreenshot = () => {
           <a-radio-button :value="VtuberType.CUSTOM">{{ VtuberType.CUSTOM }}</a-radio-button>
         </a-radio-group>
       </a-descriptions-item>
-      <a-descriptions-item v-if="customEarlyVtuberType === VtuberType.CUSTOM" :span="3"
-                           label="自定义内容">
-        <a-textarea v-model:value="currentDay.early.content"
-                    class="w-full mt-2" placeholder="请输入自定义内容"/>
-      </a-descriptions-item>
-      <a-descriptions-item v-if="customEarlyVtuberType === VtuberType.CUSTOM" :span="3"
-                           label="自定义图标">
-        <a-radio-group v-model:value="currentDay.early.icon" class="w-full flex">
-          <a-radio-button
-            v-for="([key, value]) in Object.entries(IconType)"
-            :key="key"
-            :value="value">
-            {{ value }}
-          </a-radio-button>
-        </a-radio-group>
-      </a-descriptions-item>
+      <template v-if="customEarlyVtuberType === VtuberType.CUSTOM">
+        <a-descriptions-item :span="3" label="自定义内容">
+          <a-textarea v-model:value="currentDay.early.content"
+                      class="w-full mt-2" placeholder="请输入自定义内容"/>
+        </a-descriptions-item>
+        <a-descriptions-item :span="3" label="自定义图标">
+          <a-radio-group v-model:value="currentDay.early.icon" class="w-full flex">
+            <a-radio-button
+              v-for="([key, value]) in Object.entries(IconType)"
+              :key="key"
+              :value="value">
+              {{ value }}
+            </a-radio-button>
+          </a-radio-group>
+        </a-descriptions-item>
+      </template>
       <a-descriptions-item :span="3" label="内容字体大小">
         <div class="flex justify-center items-center w-full">
           <a-slider v-model:value="currentDay.early.fontSize" :max="6" :min="2"
@@ -130,7 +129,7 @@ const downloadScreenshot = () => {
         </div>
       </a-descriptions-item>
     </a-descriptions>
-    <a-descriptions v-if="currentDay.type === DayType.NORMAL && currentDay?.late" title="晚场">
+    <a-descriptions v-if="currentDay.type === DayType.NORMAL" title="晚场">
       <a-descriptions-item :span="3" label="晚场时间">
         <a-time-picker v-model:value="currentDay.late.startingTime" :allowClear="false"
                        format="HH:mm"/>
@@ -145,22 +144,24 @@ const downloadScreenshot = () => {
           <a-radio-button :value="VtuberType.CUSTOM">{{ VtuberType.CUSTOM }}</a-radio-button>
         </a-radio-group>
       </a-descriptions-item>
-      <a-descriptions-item v-if="customLateVtuberType === VtuberType.CUSTOM" :span="3"
-                           label="自定义内容">
-        <a-textarea v-model:value="currentDay.late.content"
-                    class="w-full mt-2" placeholder="请输入自定义内容"/>
-      </a-descriptions-item>
-      <a-descriptions-item v-if="customLateVtuberType === VtuberType.CUSTOM" :span="3"
-                           label="自定义图标">
-        <a-radio-group v-model:value="currentDay.late.icon" class="w-full flex">
-          <a-radio-button
-            v-for="([key, value]) in Object.entries(IconType)"
-            :key="key"
-            :value="value">
-            {{ value }}
-          </a-radio-button>
-        </a-radio-group>
-      </a-descriptions-item>
+      <template v-if="customLateVtuberType === VtuberType.CUSTOM">
+        <a-descriptions-item :span="3"
+                             label="自定义内容">
+          <a-textarea v-model:value="currentDay.late.content"
+                      class="w-full mt-2" placeholder="请输入自定义内容"/>
+        </a-descriptions-item>
+        <a-descriptions-item :span="3"
+                             label="自定义图标">
+          <a-radio-group v-model:value="currentDay.late.icon" class="w-full flex">
+            <a-radio-button
+              v-for="([key, value]) in Object.entries(IconType)"
+              :key="key"
+              :value="value">
+              {{ value }}
+            </a-radio-button>
+          </a-radio-group>
+        </a-descriptions-item>
+      </template>
       <a-descriptions-item :span="3" label="内容字体大小">
         <div class="flex justify-center items-center w-full">
           <a-slider v-model:value="currentDay.late.fontSize" :max="6" :min="2"
