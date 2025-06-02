@@ -1,12 +1,12 @@
 import dayjs from "dayjs";
-import {VtuberType, VtuberTypeToIcon} from "@/data.ts";
+import {LiveType, VtuberType, VtuberTypeToIcon} from "@/data.ts";
 
 // 单独的时间段
 export class Live {
   startingTime: dayjs.Dayjs
   icon: string
   content: string
-  type: string
+  type: LiveType
   fontSize: number
 
 
@@ -16,7 +16,7 @@ export class Live {
     this.content = vtuberTypeList[Math.floor(Math.random() * vtuberTypeList.length)]
     this.icon = VtuberTypeToIcon[this.content]
 
-    this.type = 'normal' // normal, custom
+    this.type = LiveType.NORMAL
     this.fontSize = 4.75
   }
 }

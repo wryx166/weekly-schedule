@@ -8,7 +8,7 @@ export class Day {
   day: dayjs.Dayjs
   date: string
   dayOfWeek: string
-  type: string // normal, restDay, group
+  type: DayType // normal, restDay, group
   early: Live
   late: Live
   group: Group
@@ -26,8 +26,7 @@ export class Day {
   static initDayList(start: dayjs.Dayjs = dayjs()): Ref<Day[]> {
     const days = ref<Day[]>([])
     for (let i = 0; i < 7; i++) {
-      days.value.push(new Day(start))
-      start = start.add(1, 'day')
+      days.value.push(new Day(start.add(i, 'day')))
     }
     return days
   }
