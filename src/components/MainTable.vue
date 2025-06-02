@@ -24,6 +24,7 @@ watchEffect(() => {
     const dayData: Day = dayList.value[i]
     if (dayData) {
       dayData.date = start.format('MM.DD')
+      dayData.day = start
       dayData.dayOfWeek = start.format('ddd')
     }
     start = start.add(1, 'day')
