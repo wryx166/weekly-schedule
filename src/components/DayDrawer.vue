@@ -218,7 +218,7 @@ const downloadScreenshot = () => {
         <a-tag color="orange">浏览器窗口过大会导致截图边框出现缝隙</a-tag>
       </a-descriptions-item>
       <a-descriptions-item :span="3">
-        <pre>{{ JSON.stringify(currentDay, null, 2) }}</pre>
+        <pre>{{ JSON.stringify(currentDay.toJSON(), null, 2) }}</pre>
       </a-descriptions-item>
     </a-descriptions>
     <a-divider/>

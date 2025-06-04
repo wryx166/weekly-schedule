@@ -1,10 +1,6 @@
 <script lang="ts" setup>
-import {type Ref, ref, watchEffect} from 'vue'
-import {
-  DayType,
-  LiveType,
-  VtuberIconToEN
-} from '@/data.ts'
+import {onMounted, ref, watch, watchEffect} from 'vue'
+import {DayType, LiveType, VtuberIconToEN} from '@/data.ts'
 import {Day} from '@/models/Day.ts'
 import {Live} from '@/models/Live.ts'
 import dayjs from "dayjs";
@@ -16,7 +12,7 @@ const {firstDay} = defineProps({
     type: dayjs.Dayjs
   }
 })
-const dayList: Ref<Day[]> = Day.initDayList(firstDay);
+const dayList = ref<Day[]>([])
 
 watchEffect(() => {
   let start = dayjs(firstDay)
@@ -32,9 +28,37 @@ watchEffect(() => {
   console.log('dayList updated:', dayList.value)
 })
 
+onMounted(() => {
+  const raw = localStorage.getItem('dayList')
+  const generatedAt = localStorage.getItem('dayListGeneratedAt')
+  let needRegenerate = false
+  if (raw && generatedAt) {
+    const last = dayjs(generatedAt, 'YYYY-MM-DD HH:mm:ss')
+    const now = dayjs()
+    const hourDiff = now.diff(last, 'hour')
+    const dayDiff = now.diff(last, 'day')
+    if (hourDiff >= 12 && dayDiff >= 1) {
+      needRegenerate = true
+    }
+  } else {
+    needRegenerate = true
+  }
+  if (!needRegenerate && raw) {
+    dayList.value = JSON.parse(raw).map((obj: any) => Day.fromJSON(obj))
+  } else {
+    dayList.value = Array.from({length: 7}, (_, i) => new Day(firstDay.add(i, "day")))
+    localStorage.setItem('dayList', JSON.stringify(dayList.value.map(day => day.toJSON())))
+  }
+  localStorage.setItem('dayListGeneratedAt', dayjs().format('YYYY-MM-DD HH:mm:ss'))
+})
+
+watch(dayList, (newDayList) => {
+  console.log('dayList changed:', newDayList)
+  localStorage.setItem('dayList', JSON.stringify(dayList.value.map(day => day.toJSON())))
+}, {deep: true})
+
 const openDrawer = ref(false)
 const currentDay = ref<Day | undefined>()
-
 
 
 const startingTimeText = (live: Live) => {
@@ -141,8 +165,8 @@ const showDrawer = (day: Day) => {
 
     <DayDrawer
       v-if="openDrawer && currentDay"
-      v-model:open-drawer="openDrawer"
       v-model:current-day="currentDay"
+      v-model:open-drawer="openDrawer"
     />
   </div>
 </template>

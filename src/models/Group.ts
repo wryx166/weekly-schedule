@@ -12,4 +12,21 @@ export class Group {
     this.content = '团播'
     this.fontSize = 4.75
   }
+
+  toJSON() {
+    // noinspection SpellCheckingInspection
+    return {
+      startingTime: this.startingTime.format('YYYY-MM-DD HH:mm:ss'),
+      icon: this.icon,
+      content: this.content,
+      fontSize: this.fontSize,
+    }
+  }
+
+  static fromJSON(obj: any) {
+    const group = new Group(dayjs(obj.startingTime), obj.icon)
+    group.content = obj.content
+    group.fontSize = obj.fontSize
+    return group
+  }
 }

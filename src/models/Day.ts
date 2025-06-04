@@ -1,5 +1,4 @@
 import dayjs from "dayjs";
-import {ref, type Ref} from "vue";
 import {DayType} from "@/data.ts";
 import {Live} from "@/models/Live.ts";
 import {Group} from "@/models/Group.ts";
@@ -23,11 +22,27 @@ export class Day {
     this.group = new Group(day.clone().hour(19).minute(30), this.early.icon)
   }
 
-  static initDayList(start: dayjs.Dayjs = dayjs()): Ref<Day[]> {
-    const days = ref<Day[]>([])
-    for (let i = 0; i < 7; i++) {
-      days.value.push(new Day(start.add(i, 'day')))
+  toJSON() {
+    // noinspection SpellCheckingInspection
+    return {
+      day: this.day.format('YYYY-MM-DD'),
+      date: this.date,
+      dayOfWeek: this.dayOfWeek,
+      type: this.type,
+      early: this.early.toJSON(),
+      late: this.late.toJSON(),
+      group: this.group.toJSON(),
     }
-    return days
+  }
+
+  static fromJSON(obj: any) {
+    const day = new Day(dayjs(obj.day))
+    day.date = obj.date
+    day.dayOfWeek = obj.dayOfWeek
+    day.type = obj.type
+    day.early = Live.fromJSON(obj.early)
+    day.late = Live.fromJSON(obj.late)
+    day.group = Group.fromJSON(obj.group)
+    return day
   }
 }
