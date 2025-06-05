@@ -3,7 +3,7 @@
 import {DayType, IconType, LiveType, LiveButtonType, VtuberTypeToIcon} from "@/data.ts";
 import {DownloadOutlined} from "@ant-design/icons-vue";
 import {Day} from "@/models/Day.ts";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 // noinspection SpellCheckingInspection
 import domtoimage from "dom-to-image";
 import type {Live} from "@/models/Live.ts";
@@ -12,6 +12,17 @@ const day = defineModel<Day>('currentDay', {required: true})
 const openDrawer = defineModel<boolean>('openDrawer', {required: true})
 const earlyType = ref()
 const lateType = ref()
+
+watch(earlyType, (value) => {
+  console.log('earlyType changed:', value)
+  onLiveTypeChange(day.value.early, value)
+})
+
+watch(lateType, (value) => {
+  console.log('lateType changed:', value)
+  onLiveTypeChange(day.value.late, value)
+})
+
 
 function onLiveTypeChange(live: Live, value: string) {
   console.log('lateType changed:', value)
@@ -91,8 +102,7 @@ const downloadScreenshot = () => {
       </a-descriptions-item>
       <a-descriptions-item :span="3" label="早场直播间">
         <a-radio-group v-model:value="earlyType" button-style="solid"
-                       class="w-full flex"
-                       @change="onLiveTypeChange(day.early,earlyType)">
+                       class="w-full flex">
           <a-radio-button :value="LiveButtonType.LIAN">{{ LiveButtonType.LIAN }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.QUEENIE">{{ LiveButtonType.QUEENIE }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.BEKKI">{{ LiveButtonType.BEKKI }}</a-radio-button>
@@ -133,8 +143,7 @@ const downloadScreenshot = () => {
       </a-descriptions-item>
       <a-descriptions-item :span="3" label="晚场直播间">
         <a-radio-group v-model:value="lateType" button-style="solid"
-                       class="w-full flex"
-                       @change="onLiveTypeChange(day.late,lateType)">
+                       class="w-full flex">
           <a-radio-button :value="LiveButtonType.LIAN">{{ LiveButtonType.LIAN }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.QUEENIE">{{ LiveButtonType.QUEENIE }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.BEKKI">{{ LiveButtonType.BEKKI }}</a-radio-button>
