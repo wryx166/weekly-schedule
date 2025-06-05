@@ -3,44 +3,45 @@
 import {DayType, IconType, LiveType, LiveButtonType, VtuberTypeToIcon} from "@/data.ts";
 import {DownloadOutlined} from "@ant-design/icons-vue";
 import {Day} from "@/models/Day.ts";
-import {onMounted, ref, watch} from "vue";
-import {Live} from "@/models/Live.ts";
+import {onMounted, ref} from "vue";
 // noinspection SpellCheckingInspection
 import domtoimage from "dom-to-image";
+import type {Live} from "@/models/Live.ts";
 
 const day = defineModel<Day>('currentDay', {required: true})
 const openDrawer = defineModel<boolean>('openDrawer', {required: true})
 const earlyType = ref()
 const lateType = ref()
 
-onMounted(()=>{
-  earlyType.value = day.value.early.type === LiveType.NORMAL ? day.value.early.content : LiveButtonType.CUSTOM
-  lateType.value = day.value.late.type === LiveType.NORMAL ? day.value.late.content : LiveButtonType.CUSTOM
-})
-
-watch(earlyType, (val) => {
-  updateLiveType(day.value.early, val)
-})
-
-
-watch(lateType, (val) => {
-  updateLiveType(day.value.late, val)
-})
-
-function updateLiveType(live: Live, vtuberType: string) {
-  if (vtuberType !== LiveButtonType.CUSTOM) {
-    // 用于关闭自定义内容和图标
-    live.type = LiveType.NORMAL
-    // 更新显示内容为 vtuberType
-    live.content = vtuberType
-    // 更新图标为对应的vtuber
-    live.icon = VtuberTypeToIcon[vtuberType]
-  } else {
-    // 打开自定义内容和图标
+function onLiveTypeChange(live: Live, value: string) {
+  console.log('lateType changed:', value)
+  if (value === LiveButtonType.CUSTOM) {
+    // 如果选择了自定义，保留原有内容和图标
     live.type = LiveType.CUSTOM
-    // 保留原有 content 和 icon
+  } else {
+    live.type = LiveType.NORMAL
+    live.content = value
+    live.icon = VtuberTypeToIcon[value]
   }
 }
+
+function getButtonType(live: Live): LiveButtonType {
+  if (live.type === LiveType.CUSTOM) {
+    return LiveButtonType.CUSTOM
+  }
+  for (const type of Object.values(LiveButtonType)) {
+    if (type === live.content) {
+      return type as LiveButtonType
+    }
+  }
+  return LiveButtonType.CUSTOM
+}
+
+onMounted(() => {
+  earlyType.value = getButtonType(day.value.early)
+  lateType.value = getButtonType(day.value.late)
+})
+
 
 const downloadScreenshot = () => {
   const mainDiv = document.querySelector('div.main')
@@ -90,7 +91,8 @@ const downloadScreenshot = () => {
       </a-descriptions-item>
       <a-descriptions-item :span="3" label="早场直播间">
         <a-radio-group v-model:value="earlyType" button-style="solid"
-                       class="w-full flex">
+                       class="w-full flex"
+                       @change="onLiveTypeChange(day.early,earlyType)">
           <a-radio-button :value="LiveButtonType.LIAN">{{ LiveButtonType.LIAN }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.QUEENIE">{{ LiveButtonType.QUEENIE }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.BEKKI">{{ LiveButtonType.BEKKI }}</a-radio-button>
@@ -131,7 +133,8 @@ const downloadScreenshot = () => {
       </a-descriptions-item>
       <a-descriptions-item :span="3" label="晚场直播间">
         <a-radio-group v-model:value="lateType" button-style="solid"
-                       class="w-full flex">
+                       class="w-full flex"
+                       @change="onLiveTypeChange(day.late,lateType)">
           <a-radio-button :value="LiveButtonType.LIAN">{{ LiveButtonType.LIAN }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.QUEENIE">{{ LiveButtonType.QUEENIE }}</a-radio-button>
           <a-radio-button :value="LiveButtonType.BEKKI">{{ LiveButtonType.BEKKI }}</a-radio-button>
