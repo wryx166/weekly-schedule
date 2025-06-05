@@ -72,6 +72,11 @@ const showDrawer = (day: Day) => {
   console.log('open', day)
 }
 
+// watch(openDrawer, (val, oldVal) => {
+//   if (oldVal && !val) {
+//     day.value = undefined
+//   }
+// })
 </script>
 
 <template>
