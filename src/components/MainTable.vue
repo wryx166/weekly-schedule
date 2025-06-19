@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 import {onMounted, ref, watch, watchEffect} from 'vue'
-import {DayType, LiveType, VtuberIconToEN} from '@/data.ts'
+import {DayType} from '@/data.ts'
 import {Day} from '@/models/Day.ts'
-import {Live} from '@/models/Live.ts'
 import dayjs from "dayjs";
 import DayDrawer from "@/components/DayDrawer.vue";
+import LiveTimeBlock from "@/components/LiveTimeBlock.vue";
 
 const {firstDay} = defineProps({
   firstDay: {
@@ -59,12 +59,6 @@ watch(dayList, (newDayList) => {
 
 const openDrawer = ref(false)
 const currentDay = ref<Day | undefined>()
-
-
-const startingTimeText = (live: Live) => {
-  return live.startingTime.format('HH:mm')
-}
-
 const showDrawer = (day: Day) => {
   openDrawer.value = true
   currentDay.value = day
@@ -72,11 +66,6 @@ const showDrawer = (day: Day) => {
   console.log('open', day)
 }
 
-// watch(openDrawer, (val, oldVal) => {
-//   if (oldVal && !val) {
-//     day.value = undefined
-//   }
-// })
 </script>
 
 <template>
@@ -103,76 +92,30 @@ const showDrawer = (day: Day) => {
       <transition mode="out-in" name="icon-blur">
         <div :key="day.type"
              class="flex-grow flex w-full flex-col divide-y-[0.5vh] divide-sxwz">
-          <div
-            v-for="(live, timeKey) in {
-            'early': day.early,
-            'late': day.late,
-          }"
-            v-if="day.type === DayType.NORMAL"
-            :key="timeKey"
-            class="h-[50%] flex flex-col items-center justify-center relative"
-          >
-            <div
-              class="text-sxwz text-[4.75vh] leading-[5vh]  font-display select-none"
-            >
-              {{ startingTimeText(live) }}
-            </div>
-            <transition mode="out-in" name="icon-blur">
-              <div
-                v-if="live.type !== LiveType.CUSTOM"
-                :key="`${live.icon}-${timeKey}`"
-                :style="{ fontSize: `${live.fontSize}vh` }"
-                class="text-sxwz font-display select-none leading-[5vh] "
-              >
-                {{ live.content }}
-              </div>
-              <div v-else
-                   :key="`${live.content}-${timeKey}`"
-                   :style="{ fontSize: `${live.fontSize}vh` }"
-                   class="text-sxwz font-display select-none text-center leading-[5vh] "
-                   v-html="live.content.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"/>
-            </transition>
-
-            <transition mode="out-in" name="icon-blur">
-              <div :key="live.icon" :class="VtuberIconToEN[live.icon]"
-                   class="icon"></div>
-            </transition>
-          </div>
+          <LiveTimeBlock :live="day.early" v-if="day.type === DayType.NORMAL"/>
+          <LiveTimeBlock :live="day.late" v-if="day.type === DayType.NORMAL"/>
           <div v-if="day.type === DayType.REST_DAY"
                class="w-full h-full flex items-center justify-center">
             <img alt="" class="w-2/3" src="/src/assets/images/rest.png">
           </div>
-          <div v-if="day.type === DayType.GROUP"
-               class="w-full h-full flex items-center justify-center flex-col relative">
-            <div
-              class="text-sxwz text-[4.75vh] font-display select-none leading-[5vh] "
-            >
-              {{ day.group.startingTime?.format('HH:mm') }}
-            </div>
-            <transition mode="out-in" name="icon-blur">
-              <div
-                :style="{ fontSize: `${day.group.fontSize}vh` }"
-                class="text-sxwz font-display select-none text-center leading-[5vh] "
-                v-html="day.group.content.replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')"
-              >
-              </div>
-            </transition>
-            <transition mode="out-in" name="icon-blur">
-              <div :key="day.group.icon"
-                   :class="VtuberIconToEN[day.group.icon]"
-                   class="icon"></div>
-            </transition>
-          </div>
+          <LiveTimeBlock :live="day.group" v-if="day.type === DayType.GROUP"/>
         </div>
       </transition>
     </div>
 
-
-    <DayDrawer
-      v-if="openDrawer && currentDay"
-      v-model:current-day="currentDay"
-      v-model:open-drawer="openDrawer"
-    />
+    <a-drawer
+      v-model:open="openDrawer"
+      :root-style="{ color: 'blue' }"
+      placement="right"
+      root-class-name="root-class-name"
+      title="Basic Drawer"
+      width="530"
+    >
+      <DayDrawer
+        v-if="currentDay"
+        v-model:current-day="currentDay"
+      />
+    </a-drawer>
   </div>
 </template>
 
