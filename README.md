@@ -28,6 +28,7 @@ pnpm build
 
 ### 效果图
 
-![效果图](./markdown/Snipaste_2025-02-20_20-17-18.png)
-
-
+![效果图1](markdown/1.png)
+![效果图2](markdown/2.png)
+![效果图3](markdown/3.png)
+![效果图4](markdown/4.png)

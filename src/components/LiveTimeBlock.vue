@@ -20,7 +20,7 @@ const VtuberIconToEN: { [key: string]: string } = {
 </script>
 
 <template>
-  <div class="relative flex flex-1 flex-col items-center justify-center">
+  <div class="relative flex flex-1 flex-col items-center justify-center gap-1 only:gap-4">
     <!-- 时间 -->
     <div class="font-display text-[4.75vh] leading-[5vh] text-sxwz select-none">
       {{ startingTimeText(live) }}
