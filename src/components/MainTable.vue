@@ -1,104 +1,107 @@
 <script lang="ts" setup>
-import {onMounted, ref, watch, watchEffect} from 'vue'
-import {DayType} from '@/data.ts'
-import {Day} from '@/models/Day.ts'
+import { onMounted, ref, watch, watchEffect } from "vue";
+import { DayType } from "@/data.ts";
+import { Day } from "@/models/Day.ts";
 import dayjs from "dayjs";
 import DayDrawer from "@/components/DayDrawer.vue";
 import LiveTimeBlock from "@/components/LiveTimeBlock.vue";
 
-const {firstDay} = defineProps({
+const { firstDay } = defineProps({
   firstDay: {
     required: true,
-    type: dayjs.Dayjs
-  }
-})
-const dayList = ref<Day[]>([])
+    type: dayjs.Dayjs,
+  },
+});
+const dayList = ref<Day[]>([]);
 
 watchEffect(() => {
-  let start = dayjs(firstDay)
+  let start = dayjs(firstDay);
   for (let i = 0; i < 7; i++) {
-    const dayData: Day = dayList.value[i]
+    const dayData: Day = dayList.value[i];
     if (dayData) {
-      dayData.date = start.format('MM.DD')
-      dayData.day = start
-      dayData.dayOfWeek = start.format('ddd')
+      dayData.date = start.format("MM.DD");
+      dayData.day = start;
+      dayData.dayOfWeek = start.format("ddd");
     }
-    start = start.add(1, 'day')
+    start = start.add(1, "day");
   }
-  console.log('dayList updated:', dayList.value)
-})
+  console.log("dayList updated:", dayList.value);
+});
 
 onMounted(() => {
-  const raw = localStorage.getItem('dayList')
-  const generatedAt = localStorage.getItem('dayListGeneratedAt')
-  let needRegenerate = false
+  const raw = localStorage.getItem("dayList");
+  const generatedAt = localStorage.getItem("dayListGeneratedAt");
+  let needRegenerate = false;
   if (raw && generatedAt) {
-    const last = dayjs(generatedAt, 'YYYY-MM-DD HH:mm:ss')
-    const now = dayjs()
-    const hourDiff = now.diff(last, 'hour')
-    const dayDiff = now.diff(last, 'day')
+    const last = dayjs(generatedAt, "YYYY-MM-DD HH:mm:ss");
+    const now = dayjs();
+    const hourDiff = now.diff(last, "hour");
+    const dayDiff = now.diff(last, "day");
     if (hourDiff >= 12 && dayDiff >= 1) {
-      needRegenerate = true
+      needRegenerate = true;
     }
   } else {
-    needRegenerate = true
+    needRegenerate = true;
   }
   if (!needRegenerate && raw) {
-    dayList.value = JSON.parse(raw).map((obj: any) => Day.fromJSON(obj))
+    dayList.value = JSON.parse(raw).map((obj: any) => Day.fromJSON(obj));
   } else {
-    dayList.value = Array.from({length: 7}, (_, i) => new Day(firstDay.add(i, "day")))
-    localStorage.setItem('dayList', JSON.stringify(dayList.value.map(day => day.toJSON())))
+    dayList.value = Array.from({ length: 7 }, (_, i) => new Day(firstDay.add(i, "day")));
+    localStorage.setItem("dayList", JSON.stringify(dayList.value.map((day) => day.toJSON())));
   }
-  localStorage.setItem('dayListGeneratedAt', dayjs().format('YYYY-MM-DD HH:mm:ss'))
-})
+  localStorage.setItem("dayListGeneratedAt", dayjs().format("YYYY-MM-DD HH:mm:ss"));
+});
 
-watch(dayList, (newDayList) => {
-  console.log('dayList changed:', newDayList)
-  localStorage.setItem('dayList', JSON.stringify(dayList.value.map(day => day.toJSON())))
-}, {deep: true})
+watch(
+  dayList,
+  (newDayList) => {
+    console.log("dayList changed:", newDayList);
+    localStorage.setItem("dayList", JSON.stringify(dayList.value.map((day) => day.toJSON())));
+  },
+  { deep: true },
+);
 
-const openDrawer = ref(false)
-const currentDay = ref<Day | undefined>()
+const openDrawer = ref(false);
+const currentDay = ref<Day | undefined>();
 const showDrawer = (day: Day) => {
-  openDrawer.value = true
-  currentDay.value = day
+  openDrawer.value = true;
+  currentDay.value = day;
 
-  console.log('open', day)
-}
-
+  console.log("open", day);
+};
 </script>
 
 <template>
-  <div :class="$attrs.class" class=" flex divide-x-[0.5vh] divide-sxwz border-[0.5vh] border-sxwz">
+  <div :class="$attrs.class" class="flex divide-x-[0.5vh] divide-sxwz border-[0.5vh] border-sxwz">
     <div
       v-for="(day, index) in dayList"
       :key="index"
-      class="flex w-1/7 h-full flex-col divide-y-[0.5vh] divide-sxwz"
+      class="flex h-full w-1/7 flex-col divide-y-[0.5vh] divide-sxwz"
       @click="showDrawer(day)"
     >
       <div class="flex h-[30%] w-full flex-col items-center">
-        <div class="h-[13%]"/>
-        <div
-          class="h-[38%] text-sxwz text-[5vh] font-display items-center flex justify-center"
-        >
+        <div class="h-[13%]" />
+        <div class="flex h-[38%] items-center justify-center font-display text-[5vh] text-sxwz">
           {{ day.dayOfWeek }}
         </div>
-        <div class="h-[14.7%]"/>
+        <div class="h-[14.7%]" />
         <time
-          class="day text-sxwz-light text-[2.75vh] font-display h-[21%] items-center flex justify-center">
+          class="day flex h-[21%] items-center justify-center font-display text-[2.75vh] text-sxwz-light"
+        >
           {{ day.date }}
         </time>
       </div>
       <transition mode="out-in" name="icon-blur">
-        <div :key="day.type"
-             class="flex-grow flex w-full flex-col divide-y-[0.5vh] divide-sxwz">
-          <LiveTimeBlock :live="day.early" v-if="day.type === DayType.NORMAL"/>
-          <LiveTimeBlock :live="day.late" v-if="day.type === DayType.NORMAL"/>
-          <div v-if="day.type === DayType.REST_DAY"
-               class="w-full h-full flex items-center justify-center">
-            <img alt="" class="w-2/3" src="/src/assets/images/rest.png">
+        <div :key="day.type" class="flex w-full flex-grow flex-col divide-y-[0.5vh] divide-sxwz">
+          <LiveTimeBlock :live="day.early" v-if="day.type === DayType.NORMAL" />
+          <LiveTimeBlock :live="day.late" v-if="day.type === DayType.NORMAL" />
+          <div
+            v-if="day.type === DayType.REST_DAY"
+            class="flex h-full w-full items-center justify-center"
+          >
+            <img alt="" class="w-2/3" src="/src/assets/images/rest.png" />
           </div>
-          <LiveTimeBlock :live="day.group" v-if="day.type === DayType.GROUP"/>
+          <LiveTimeBlock :live="day.group" v-if="day.type === DayType.GROUP" />
         </div>
       </transition>
     </div>
@@ -111,10 +114,7 @@ const showDrawer = (day: Day) => {
       title="Basic Drawer"
       width="530"
     >
-      <DayDrawer
-        v-if="currentDay"
-        v-model:current-day="currentDay"
-      />
+      <DayDrawer v-if="currentDay" v-model:current-day="currentDay" />
     </a-drawer>
   </div>
 </template>
@@ -123,8 +123,9 @@ const showDrawer = (day: Day) => {
 <style scoped>
 .icon-blur-enter-active,
 .icon-blur-leave-active {
-  transition: filter 0.15s ease,
-  opacity 0.15s ease;
+  transition:
+    filter 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .icon-blur-enter-from,

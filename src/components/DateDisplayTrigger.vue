@@ -1,20 +1,20 @@
 <script lang="ts" setup>
-import {computed, ref} from "vue";
+import { computed, ref } from "vue";
 import dayjs from "dayjs";
 const open = ref(false);
-const value1 = ref<dayjs.Dayjs>();
-const firstDay= defineModel<dayjs.Dayjs>('firstDay',{
-  required: true
+const tmpValue = ref<dayjs.Dayjs>();
+const firstDay = defineModel<dayjs.Dayjs>("firstDay", {
+  required: true,
 });
 
 const showModal = () => {
   open.value = true;
-  value1.value = firstDay.value;
+  tmpValue.value = firstDay.value;
 };
 
 const handleOk = () => {
-  if (!value1.value) return;
-  firstDay.value = value1.value;
+  if (!tmpValue.value) return;
+  firstDay.value = tmpValue.value;
   open.value = false;
 };
 const dateRangeText = computed(() => {
@@ -25,17 +25,17 @@ const dateRangeText = computed(() => {
 </script>
 
 <template>
-  <div :class="$attrs.class" class="flex items-center justify-center">
+  <div class="h-full w-full">
     <time
-      class="date-range ml-[1%] text-sxwz-light w-full text-center text-[3.5vh] font-[AlibabaPuHuiTi-3-75-SemiBold]"
+      class="date-range ml-[1%] flex w-full items-center justify-center text-center font-[AlibabaPuHuiTi-3-75-SemiBold] text-[3.5vh] text-sxwz-light"
       @click="showModal()"
     >
       {{ dateRangeText }}
     </time>
+    <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk">
+      <a-date-picker v-model:value="tmpValue" :allowClear="false" />
+    </a-modal>
   </div>
-  <a-modal v-model:open="open" title="Basic Modal" @ok="handleOk" v-if="open">
-    <a-date-picker v-model:value="value1" :allowClear="false"/>
-  </a-modal>
 </template>
 
 <style scoped></style>
