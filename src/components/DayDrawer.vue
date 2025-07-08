@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { DayType, LiveButtonType, LiveType, VtuberTypeToIcon } from "@/data.ts";
+import { DayType, Liver, LiveType, VtuberTypeToIcon } from "@/data.ts";
 import { DownloadOutlined } from "@ant-design/icons-vue";
 import { Day } from "@/models/Day.ts";
 import { onMounted, ref, watch } from "vue";
@@ -34,7 +34,7 @@ watch(day, () => {
 
 function onLiveTypeChange(live: Live, value: string) {
   console.log("lateType changed:", value);
-  if (value === LiveButtonType.CUSTOM) {
+  if (value === Liver.CUSTOM) {
     // 如果选择了自定义，保留原有内容和图标
     live.type = LiveType.CUSTOM;
   } else {
@@ -44,16 +44,16 @@ function onLiveTypeChange(live: Live, value: string) {
   }
 }
 
-function getButtonType(live: Live): LiveButtonType {
+function getButtonType(live: Live): Liver {
   if (live.type === LiveType.CUSTOM) {
-    return LiveButtonType.CUSTOM;
+    return Liver.CUSTOM;
   }
-  for (const type of Object.values(LiveButtonType)) {
+  for (const type of Object.values(Liver)) {
     if (type === live.content) {
-      return type as LiveButtonType;
+      return type as Liver;
     }
   }
-  return LiveButtonType.CUSTOM;
+  return Liver.CUSTOM;
 }
 
 const downloadScreenshot = () => {

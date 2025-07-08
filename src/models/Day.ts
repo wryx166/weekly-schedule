@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
-import {DayType} from "@/data.ts";
-import {Live} from "@/models/Live.ts";
-import {Group} from "@/models/Group.ts";
+import { DayType } from "@/data.ts";
+import { Live } from "@/models/Live.ts";
+import { Group } from "@/models/Group.ts";
 
 export class Day {
   day: dayjs.Dayjs

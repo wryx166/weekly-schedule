@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { IconType, LiveButtonType } from "@/data.ts";
+import { IconType, Liver } from "@/data.ts";
 import type { Live } from "@/models/Live.ts";
 import type { Group } from "@/models/Group.ts";
 
@@ -19,16 +19,14 @@ const { title } = defineProps({
     </a-descriptions-item>
     <a-descriptions-item v-if="liveType" :span="3" :label="`${title}直播间`">
       <a-radio-group v-model:value="liveType" button-style="solid" class="flex w-full">
-        <a-radio-button :value="LiveButtonType.LIAN">{{ LiveButtonType.LIAN }}</a-radio-button>
-        <a-radio-button :value="LiveButtonType.QUEENIE">
-          {{ LiveButtonType.QUEENIE }}
-        </a-radio-button>
-        <a-radio-button :value="LiveButtonType.BEKKI">{{ LiveButtonType.BEKKI }}</a-radio-button>
-        <a-radio-button :value="LiveButtonType.YOYI">{{ LiveButtonType.YOYI }}</a-radio-button>
-        <a-radio-button :value="LiveButtonType.CUSTOM">{{ LiveButtonType.CUSTOM }}</a-radio-button>
+        <a-radio-button :value="Liver.LIAN">{{ Liver.LIAN }}</a-radio-button>
+        <a-radio-button :value="Liver.QUEENIE">{{ Liver.QUEENIE }} </a-radio-button>
+        <a-radio-button :value="Liver.BEKKI">{{ Liver.BEKKI }}</a-radio-button>
+        <a-radio-button :value="Liver.YOYI">{{ Liver.YOYI }}</a-radio-button>
+        <a-radio-button :value="Liver.CUSTOM">{{ Liver.CUSTOM }}</a-radio-button>
       </a-radio-group>
     </a-descriptions-item>
-    <template v-if="liveType === LiveButtonType.CUSTOM || liveType === undefined">
+    <template v-if="liveType === Liver.CUSTOM || liveType === undefined">
       <a-descriptions-item :span="3" label="自定义内容">
         <a-textarea
           v-model:value="live.content"

@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import { onMounted, ref, watch, watchEffect } from "vue";
-import { DayType } from "@/data.ts";
 import { Day } from "@/models/Day.ts";
 import dayjs from "dayjs";
 import DayDrawer from "@/components/DayDrawer.vue";
-import LiveTimeBlock from "@/components/LiveTimeBlock.vue";
 
 const { firstDay } = defineProps({
   firstDay: {
@@ -44,7 +42,7 @@ onMounted(() => {
     needRegenerate = true;
   }
   if (!needRegenerate && raw) {
-    dayList.value = JSON.parse(raw).map((obj: any) => Day.fromJSON(obj));
+    dayList.value = JSON.parse(raw).map((obj: Day) => Day.fromJSON(obj));
   } else {
     dayList.value = Array.from({ length: 7 }, (_, i) => new Day(firstDay.add(i, "day")));
     localStorage.setItem("dayList", JSON.stringify(dayList.value.map((day) => day.toJSON())));
@@ -61,82 +59,29 @@ watch(
   { deep: true },
 );
 
-const openDrawer = ref(false);
+const isOpen = ref(false);
 const currentDay = ref<Day | undefined>();
 const showDrawer = (day: Day) => {
-  openDrawer.value = true;
+  isOpen.value = true;
   currentDay.value = day;
-
-  console.log("open", day);
 };
 </script>
 
 <template>
-  <div :class="$attrs.class" class="flex divide-x-[0.5vh] divide-sxwz border-[0.5vh] border-sxwz">
+  <div class="flex divide-x-[0.5vh] divide-sxwz border-[0.5vh] border-sxwz">
     <div
       v-for="(day, index) in dayList"
       :key="index"
-      class="flex h-full w-1/7 flex-col divide-y-[0.5vh] divide-sxwz"
+      class="flex flex-1 flex-col divide-y-[0.5vh] divide-sxwz"
       @click="showDrawer(day)"
     >
-      <div class="flex h-[30%] w-full flex-col items-center">
-        <div class="h-[13%]" />
-        <div class="flex h-[38%] items-center justify-center font-display text-[5vh] text-sxwz">
-          {{ day.dayOfWeek }}
-        </div>
-        <div class="h-[14.7%]" />
-        <time
-          class="day flex h-[21%] items-center justify-center font-display text-[2.75vh] text-sxwz-light"
-        >
-          {{ day.date }}
-        </time>
-      </div>
-      <transition mode="out-in" name="icon-blur">
-        <div :key="day.type" class="flex w-full flex-grow flex-col divide-y-[0.5vh] divide-sxwz">
-          <LiveTimeBlock :live="day.early" v-if="day.type === DayType.NORMAL" />
-          <LiveTimeBlock :live="day.late" v-if="day.type === DayType.NORMAL" />
-          <div
-            v-if="day.type === DayType.REST_DAY"
-            class="flex h-full w-full items-center justify-center"
-          >
-            <img alt="" class="w-2/3" src="/src/assets/images/rest.png" />
-          </div>
-          <LiveTimeBlock :live="day.group" v-if="day.type === DayType.GROUP" />
-        </div>
-      </transition>
+      <DayBlock :day />
     </div>
 
-    <a-drawer
-      v-model:open="openDrawer"
-      :root-style="{ color: 'blue' }"
-      placement="right"
-      root-class-name="root-class-name"
-      title="Basic Drawer"
-      width="530"
-    >
+    <a-drawer v-model:open="isOpen" placement="right" width="530">
       <DayDrawer v-if="currentDay" v-model:current-day="currentDay" />
     </a-drawer>
   </div>
 </template>
 
-<!--suppress CssUnusedSymbol -->
-<style scoped>
-.icon-blur-enter-active,
-.icon-blur-leave-active {
-  transition:
-    filter 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.icon-blur-enter-from,
-.icon-blur-leave-to {
-  filter: blur(2px);
-  opacity: 0.8;
-}
-
-.icon-blur-enter-to,
-.icon-blur-leave-from {
-  filter: blur(0);
-  opacity: 1;
-}
-</style>
+<style scoped></style>

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import {LiveType, LiveButtonType, VtuberTypeToIcon} from "@/data.ts";
+import { LiveType, Liver, VtuberTypeToIcon } from "@/data.ts";
 
 // 单独的时间段
 export class Live {
@@ -12,7 +12,7 @@ export class Live {
 
   constructor(time: dayjs.Dayjs) {
     this.startingTime = time
-    const vtuberTypeList = Object.values(LiveButtonType).filter(vtuber => vtuber !== LiveButtonType.CUSTOM)
+    const vtuberTypeList = Object.values(Liver).filter(vtuber => vtuber !== Liver.CUSTOM)
     this.content = vtuberTypeList[Math.floor(Math.random() * vtuberTypeList.length)]
     this.icon = VtuberTypeToIcon[this.content]
 

@@ -10,7 +10,7 @@ export enum LiveType {
   CUSTOM = 'custom', // 自定义直播
 }
 
-export enum LiveButtonType {
+export enum Liver {
   QUEENIE = '沐霂',
   LIAN = '梨安',
   BEKKI = '恬豆',
@@ -27,17 +27,11 @@ export enum IconType {
 }
 
 export const VtuberTypeToIcon: { [key: string]: string } = {
-  [LiveButtonType.QUEENIE]: IconType.QUEENIE,
-  [LiveButtonType.LIAN]: IconType.LIAN,
-  [LiveButtonType.BEKKI]: IconType.BEKKI,
-  [LiveButtonType.YOYI]: IconType.YOYI
+  [Liver.QUEENIE]: IconType.QUEENIE,
+  [Liver.LIAN]: IconType.LIAN,
+  [Liver.BEKKI]: IconType.BEKKI,
+  [Liver.YOYI]: IconType.YOYI
 }
 
-export const VtuberIconToEN: { [key: string]: string } = {
-  [IconType.QUEENIE]: 'queenie',
-  [IconType.LIAN]: 'lian',
-  [IconType.BEKKI]: 'bekki',
-  [IconType.YOYI]: 'yoyi',
-  [IconType.NULL]: 'null',
-}
+
 
