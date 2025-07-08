@@ -1,3 +1,5 @@
+# 四禧丸子排班表
+
 ### 使用的nodejs版本是v22.14.0
 
 ### 安装pnpm
@@ -23,10 +25,6 @@ pnpm dev
 ```sh
 pnpm build
 ```
-> **警告**
->
-> [./src/assets/fonts/](./src/assets/fonts)下的字体文件默认未经过裁剪，包含全部字符。
-> 如果需要裁剪字符，请修改[./unicodes.txt](./unicodes.txt)后使用[sub_setter.py](sub_setter.py)自行裁剪。
 
 ### 效果图
 

@@ -28,6 +28,4 @@ coverage
 *.sw?
 
 *.tsbuildinfo
-
-/src/assets/fonts/*
 components.d.ts
