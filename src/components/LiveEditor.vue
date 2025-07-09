@@ -2,6 +2,8 @@
 import { IconType, Liver } from "@/data.ts";
 import type { Live } from "@/models/Live.ts";
 import type { Group } from "@/models/Group.ts";
+import dayjs from "dayjs";
+import { ref, watch } from "vue";
 
 const liveType = defineModel("liveType", { required: false });
 const live = defineModel<Live | Group>("live", { required: true });
@@ -10,12 +12,17 @@ const { title } = defineProps({
     type: String,
   },
 });
+
+const tmpStartingTime = ref(dayjs(live.value.startingTime, "HH:mm"));
+watch(tmpStartingTime, (newValue) => {
+  live.value.startingTime = newValue.format("HH:mm");
+});
 </script>
 
 <template>
   <a-descriptions :title="title">
     <a-descriptions-item :span="3" :label="`${title}时间`">
-      <a-time-picker v-model:value="live.startingTime" :allowClear="false" format="HH:mm" />
+      <a-time-picker v-model:value="tmpStartingTime" :allowClear="false" format="HH:mm" />
     </a-descriptions-item>
     <a-descriptions-item v-if="liveType" :span="3" :label="`${title}直播间`">
       <a-radio-group v-model:value="liveType" button-style="solid" class="flex w-full">

@@ -4,7 +4,7 @@ import { Live } from "@/models/Live.ts";
 import { Group } from "@/models/Group.ts";
 
 const startingTimeText = (live: Live | Group) => {
-  return live.startingTime.format("HH:mm");
+  return live.startingTime;
 };
 
 const live = defineModel<Live | Group>("live", { required: true });

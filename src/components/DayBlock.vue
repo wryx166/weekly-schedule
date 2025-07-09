@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { DayType } from "@/data.ts";
-defineModel("day", { required: true });
+import type { Day } from "@/models/Day";
+import LiveTimeBlock from "@/components/LiveTimeBlock.vue";
+defineModel<Day>("day", { required: true });
 </script>
 
 <template>

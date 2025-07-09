@@ -1,23 +1,10 @@
 <script lang="ts" setup>
 import MainTable from "@/components/MainTable.vue";
 import DateDisplayTrigger from "@/components/DateDisplayTrigger.vue";
-import { onMounted, ref, watch } from "vue";
+import { ref } from "vue";
 import dayjs from "dayjs";
 
 const firstDay = ref<dayjs.Dayjs>(dayjs());
-
-onMounted(() => {
-  const stored = localStorage.getItem("firstDay");
-  if (!stored) {
-    localStorage.setItem("firstDay", firstDay.value.format("YYYY-MM-DD"));
-  } else {
-    firstDay.value = dayjs(stored);
-  }
-});
-
-watch(firstDay, (val) => {
-  localStorage.setItem("firstDay", val.format("YYYY-MM-DD"));
-});
 </script>
 
 <template>

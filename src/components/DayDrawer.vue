@@ -7,19 +7,20 @@ import { onMounted, ref, watch } from "vue";
 import domtoimage from "dom-to-image";
 import type { Live } from "@/models/Live.ts";
 import LiveEditor from "@/components/LiveEditor.vue";
+import dayjs from "dayjs";
 
 const day = defineModel<Day>("currentDay", { required: true });
-const earlyType = ref();
-const lateType = ref();
+const earlyType = ref<Liver>();
+const lateType = ref<Liver>();
 
 watch(earlyType, (value) => {
   console.log("earlyType changed:", value);
-  onLiveTypeChange(day.value.early, value);
+  onLiveTypeChange(day.value.early, value!);
 });
 
 watch(lateType, (value) => {
   console.log("lateType changed:", value);
-  onLiveTypeChange(day.value.late, value);
+  onLiveTypeChange(day.value.late, value!);
 });
 
 onMounted(() => {
@@ -32,7 +33,7 @@ watch(day, () => {
   lateType.value = getButtonType(day.value.late);
 });
 
-function onLiveTypeChange(live: Live, value: string) {
+function onLiveTypeChange(live: Live, value: Liver) {
   console.log("lateType changed:", value);
   if (value === Liver.CUSTOM) {
     // 如果选择了自定义，保留原有内容和图标
@@ -74,12 +75,17 @@ const downloadScreenshot = () => {
       alert("截图失败: " + error);
     });
 };
+
+const handleReset = () => {
+  localStorage.clear();
+  window.location.reload();
+};
 </script>
 
 <template>
   <a-descriptions title="信息">
     <a-descriptions-item :span="3" label="日期">
-      {{ day.day.format("YYYY-MM-DD") }} {{ day.dayOfWeek }}
+      {{ dayjs(day.day).format("YYYY-MM-DD") }} {{ day.dayOfWeek }}
     </a-descriptions-item>
     <a-descriptions-item :span="3" label="当天类型">
       <a-radio-group v-model:value="day.type" button-style="solid" class="flex w-full">
@@ -113,10 +119,18 @@ const downloadScreenshot = () => {
         </template>
         下载周表图片
       </a-button>
-      <a-tag color="orange">浏览器窗口过大会导致截图边框出现缝隙</a-tag>
+      <a-tag color="orange">截图边框可能出现缝隙</a-tag>
+      <a-popconfirm
+        title="确定要重置所有内容吗？"
+        ok-text="Yes"
+        cancel-text="No"
+        @confirm="handleReset"
+      >
+        <a-button danger class="ml-auto">重置</a-button>
+      </a-popconfirm>
     </a-descriptions-item>
     <a-descriptions-item :span="3">
-      <pre>{{ JSON.stringify(day.toJSON(), null, 2) }}</pre>
+      <pre>{{ JSON.stringify(day, null, 2) }}</pre>
     </a-descriptions-item>
   </a-descriptions>
   <a-divider />
